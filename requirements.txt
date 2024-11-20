@@ -1,0 +1,8 @@
+aiofiles==24.1.0
+fastapi==0.115.4
+PyYAML==6.0.2
+PyYAML==6.0.2
+Requests==2.32.3
+SQLAlchemy==2.0.36
+sqlmodel==0.0.22
+uvicorn==0.32.0
