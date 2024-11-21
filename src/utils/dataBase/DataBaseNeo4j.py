@@ -1,25 +1,26 @@
-
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.orm import sessionmaker
+from neo4j import AsyncGraphDatabase
 from utils.dataBase.DataBaseInterface import DataBaseInterface
 
-class DataBaseSqlite(DataBaseInterface):
+
+class DataBaseNeo4j(DataBaseInterface):
     url: str = None
-    engine: create_async_engine = None
-    sessionLocal: sessionmaker = None
+    pwd: str = None
+    user: str = None
+    sessionLocal = None
 
-    def __init__(self, path: str):
-        # 打包跟随程序
-        type = "sqlite+aiosqlite"
-        self.url = f"{type}:///{path}"
+    def __init__(self, user: str, pwd: str, host: str, port: int):
+        self.url = f"neo4j://{host}:{port}"
+        self.user = user
+        self.pwd = pwd
 
-    def connect(self):
-        # 控制台打印SQL
-        self.engine = create_async_engine(self.url, echo=True)
-        self.sessionLocal = sessionmaker(
-            self.engine, expire_on_commit=False, class_=AsyncSession
-        )
+    async def connect(self):
+        self.driver = AsyncGraphDatabase.driver(self.url, auth=(self.user, self.pwd))
+        self.sessionLocal = self.driver.session
 
-    def disconnect(self):
-        print("sqlite disconnect")
+    async def cypher_query(self, query: str, params: dict = None):
+        async with self.sessionLocal() as session:
+            result = await session.run(query, params)
+            return result
+
+    async def disconnect(self):
+        await self.driver.close()
