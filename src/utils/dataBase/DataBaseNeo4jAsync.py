@@ -1,4 +1,33 @@
-import time    
+import time
+from neo4j import AsyncGraphDatabase,GraphDatabase
+from utils.dataBase.DataBaseInterface import DataBaseInterface
+
+
+class DataBaseNeo4jAsync(DataBaseInterface):
+    url: str = None
+    pwd: str = None
+    user: str = None
+    sessionLocal = None
+
+    def __init__(self, user: str, pwd: str, host: str, port: int,path: str ="neo4j" ):
+        self.url = f"neo4j://{host}:{port}"
+        self.user = user
+        self.pwd = pwd
+        self.path = path  # 指定默认数据库
+        
+    async def connect(self):
+        self.driver = AsyncGraphDatabase.driver(self.url, auth=(self.user, self.pwd), database=self.path,max_connection_pool_size=100)
+        self.sessionLocal = self.driver.session
+
+    async def cypher_query(self, query: str, params: dict = None):
+        async with self.sessionLocal() as session:
+            result = await session.run(query, params)
+            return result
+        
+
+    async def disconnect(self):
+        await self.driver.close()
+        
 from neo4j import GraphDatabase
 from utils.dataBase.DataBaseInterface import DataBaseInterface
 
@@ -30,11 +59,11 @@ class DataBaseNeo4j(DataBaseInterface):
         results = []
         with self.driver.session() as session:
             for param in params_list:
-                # print(f'Task {param["path"]} start at {time.strftime("%X")}')  
+                print(f'Task {param["path"]} start at {time.strftime("%X")}')  
                 # 执行Cypher查询并获取结果
                 result = session.run(query, param)
                 results.append(result)
-                # print(f'Task {param["path"]} finished at {time.strftime("%X")}')  
+                print(f'Task {param["path"]} finished at {time.strftime("%X")}')  
         return results
     
     def cypher_query_batchs(self, query_objs: list = None):
@@ -44,11 +73,11 @@ class DataBaseNeo4j(DataBaseInterface):
                 params_list = query_obj['params']
                 query = query_obj['query']
                 for param in params_list:
-                    # print(f'Task {param["path"]} start at {time.strftime("%X")}')  
+                    print(f'Task {param["path"]} start at {time.strftime("%X")}')  
                     # 执行Cypher查询并获取结果
                     result = session.run(query, param)
                     results.append(result)
-                    # print(f'Task {param["path"]} finished at {time.strftime("%X")}')  
+                    print(f'Task {param["path"]} finished at {time.strftime("%X")}')  
         return results
 
     def disconnect(self):

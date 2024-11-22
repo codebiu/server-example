@@ -38,19 +38,19 @@ if __name__ == "__main__":
         project = r"D:\test\fastapi"
         project_name = "fastapi"
         # file_list,size = DirectoryTree.build_directory_list(project)
-        directory_list = DirectoryTree.build_directory_list_root(project)
+        directory_list, size = DirectoryTree.build_directory_list(project)
         # print(json.dumps(file_list, ensure_ascii=False, indent=4),size)
         # file_list 中type为'file'的节点
         file_list = [file for file in directory_list if file["type"] == "File"]
         folder_list = [file for file in directory_list if file["type"] == "Folder"]
 
-        query_create_file = f"""
-                    CREATE (f:File {{ 
-                        name: $label, 
-                        path: $path, 
-                        size: $size
-                        }})
-                    """
+        query_create_project = f"""
+            CREATE (f:Project {{ 
+                name: $label, 
+                path: $path, 
+                size: $size
+                }})
+            """
         query_create_folder = f"""
                     CREATE (f:Folder {{ 
                         name: $label, 
@@ -58,17 +58,27 @@ if __name__ == "__main__":
                         size: $size
                         }})
                     """
+        query_create_file = f"""
+                    CREATE (f:File {{ 
+                        name: $label, 
+                        path: $path, 
+                        size: $size
+                        }})
+                    """
+
         start_time = time.time()
-        db.cypher_query_batchs([
+        query_objs = [
             {
-                "query": query_create_file,
-                "params":file_list
+                "query": query_create_project,
+                "params": [{"label": project_name, "path": project_name, "size": size}],
             },
-            {
-                "query": query_create_folder,
-                "params": folder_list
-            }
-        ])
+            {"query": query_create_folder, "params": folder_list},
+            {"query": query_create_file, "params": file_list},
+        ]
+        for query_obj in query_objs:
+            params_list = query_obj["params"]
+            query = query_obj["query"]
+            db.cypher_query_batch(query, params_list)
         print("创建文件节点时间：", time.time() - start_time)
 
     # 运行主函数
