@@ -36,9 +36,12 @@ pip3 install pyyaml
 pip3 install kuzu
 # 图数据库neo4j
 pip3 install neo4j
+# jwt
+pip install pyjwt
+# 密码加密
+pip install passlib[bcrypt]
 # full server
-pip3 install uvicorn fastapi sqlmodel python-multipart aiosqlite aiofiles pyyaml neo4j kuzu
-
+pip3 install uvicorn fastapi sqlmodel python-multipart aiosqlite aiofiles pyyaml neo4j kuzu pyjwt passlib[bcrypt]
 # 导出
 conda env export > environment.yaml
 conda list -e > requirements.txt

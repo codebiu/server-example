@@ -1,3 +1,7 @@
+"""
+    fastapi 基础配置
+    fastapi base config
+"""
 # self
 from config.log import console
 from utils.dataBase.DataBaseSqlite import DataBaseSqlite

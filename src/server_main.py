@@ -5,13 +5,10 @@ from config.index import conf
 
 # import config
 from config import db, fastapi_config, path, log, index
-from controller import index, user, utils, ws, test0,dict
+from controller import index, user, utils, ws, test0,dict,token
 
-print("test")
 # lib
-
-
-console.log("...依赖引入完成")
+console.log("......基础依赖全部引入完成")
 
 if __name__ == "__main__":
     # print("pc_main", path.path_html, __name__)

@@ -1,10 +1,9 @@
-
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from utils.dataBase.DataBaseInterface import DataBaseInterface
 
-class DataBaseNeo4j(DataBaseInterface):
+class DataBaseSqlite(DataBaseInterface):
     url: str = None
     engine: create_async_engine = None
     sessionLocal: sessionmaker = None

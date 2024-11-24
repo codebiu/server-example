@@ -34,7 +34,6 @@ async def select(id: str) -> User | None:
 async def list() -> list[User]:
     return await UsersService.list()
 
-
 app.include_router(router, prefix="/user", tags=["用户"])
 
 
