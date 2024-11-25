@@ -2,7 +2,10 @@ import logging
 import logging.config
 #默认的warning级别，只输出warning以上的
 #使用basicConfig()来指定日志级别和相关信息
-from config.path import path_base,path_config
+from config.path import path_base
+from config.index import conf
+
+path_config = conf['state']['log_path']
 # 读取配置文件
 print(path_config)
 # python3.10.4版本
@@ -37,6 +40,5 @@ class console:
         
 # 输出带颜色的日志
 console.log('...log配置完成')
-
 console.log('项目根路径:'+str(path_base))
 

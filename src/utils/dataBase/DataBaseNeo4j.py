@@ -29,10 +29,14 @@ class DataBaseNeo4j(DataBaseInterface):
     def cypher_query_batch(self, query: str, params_list: list = None):
         results = []
         with self.driver.session() as session:
-            for param in params_list:
-                # print(f'Task {param["path"]} start at {time.strftime("%X")}')  
-                # 执行Cypher查询并获取结果
-                result = session.run(query, param)
+            if params_list is not None:
+                for param in params_list:
+                    # print(f'Task {param["path"]} start at {time.strftime("%X")}')  
+                    # 执行Cypher查询并获取结果
+                    result = session.run(query, param)
+                    results.append(result)
+            else:
+                result = session.run(query)
                 results.append(result)
                 # print(f'Task {param["path"]} finished at {time.strftime("%X")}')  
         return results
@@ -41,12 +45,17 @@ class DataBaseNeo4j(DataBaseInterface):
         results = []
         with self.driver.session() as session:
             for query_obj in query_objs:
-                params_list = query_obj['params']
                 query = query_obj['query']
-                for param in params_list:
-                    # print(f'Task {param["path"]} start at {time.strftime("%X")}')  
-                    # 执行Cypher查询并获取结果
-                    result = session.run(query, param)
+                if query_obj.get('params') is not None:
+                    params_list = query_obj['params']
+                    for param in params_list:
+                        # print(f'Task {param["path"]} start at {time.strftime("%X")}')  
+                        # 执行Cypher查询并获取结果
+                        result = session.run(query, param)
+                        results.append(result)
+                else:
+                    params_list = None
+                    result = session.run(query)
                     results.append(result)
                     # print(f'Task {param["path"]} finished at {time.strftime("%X")}')  
         return results
