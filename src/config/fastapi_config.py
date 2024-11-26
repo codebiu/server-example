@@ -18,6 +18,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.docs import get_swagger_ui_html
 import time
 
+from utils.security import TokenUtil
+
 app = FastAPI(
     title="python工程模板",
     description="python工程模板",
@@ -52,19 +54,18 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response: Response = await call_next(request)
     dealToken(request, response)
-
     # X- 作为前缀代表专有自定义请求头
     response.headers["X-Process-Time"] = str((time.time() - start_time)* 1000)
 
     return response
 
 
+token_util = TokenUtil()
 def dealToken(request: Request, response: Response):
-    # token=int(request.headers.get("token"))
-    # if token:
-    #     if token<=5:
-    #         response.headers["X-token"] = str(10)
-    #         return
+    # 解析出数据
+    data = token_util.token2data(request)
+    
+    # 验证用户存在
     return
 
 

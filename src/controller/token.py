@@ -1,24 +1,21 @@
-''' token controller'''
+""" token controller"""
+
 # self
-from config.fastapi_config import app
+from config.fastapi_config import app, token_util
 
 # lib
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
-from passlib.context import CryptContext
 from pydantic import BaseModel
 
 
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 fake_users_db = {
@@ -51,12 +48,9 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
-    
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# 密码加密
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-# pwd_context.hash(password)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_user(db, username: str):
@@ -64,7 +58,16 @@ def get_user(db, username: str):
         user_dict = db[username]
         return UserInDB(**user_dict)
 
+
 def authenticate_user(fake_db, username: str, password: str):
+    """
+    验证用户身份。
+
+    :param fake_db: 模拟的用户数据库。
+    :param username: 用户名。
+    :param password: 明文密码。
+    :return: 如果验证成功，返回用户对象；否则返回 False。
+    """
     user = get_user(fake_db, username)
     # 验证明文密码是否与已哈希的密码匹配
     if not user or not pwd_context.verify(password, user.hashed_password):
@@ -72,24 +75,21 @@ def authenticate_user(fake_db, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    """
+    获取当前用户信息。
+
+    :param token: Bearer 令牌。
+    :return: 当前用户对象。
+    :raises HTTPException: 如果无法验证凭据或用户不存在。
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        # decode 解码token内容
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
@@ -111,10 +111,19 @@ async def get_current_active_user(
     return current_user
 
 
+router = APIRouter()
+
+
 @app.post("/token")
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    form_data: OAuth2PasswordRequestForm,
 ) -> Token:
+    """
+    首次登陆，账户密码获取访问令牌。
+
+    :param form_data: 包含用户名和密码的表单数据。
+    :return: 包含访问令牌和令牌类型的响应。
+    """
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -122,11 +131,8 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-    return Token(access_token=access_token, token_type="bearer")
+    token = token_util.data2token(data={"sub": user.username})
+    return token
 
 
 @app.get("/users/me/", response_model=User)
@@ -141,3 +147,6 @@ async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return [{"item_id": "Foo", "owner": current_user.username}]
+
+
+app.include_router(router, prefix="/user", tags=["用户"])
