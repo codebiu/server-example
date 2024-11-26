@@ -1,11 +1,14 @@
+state:
+  config_path: null
 server:
   host: 0.0.0.0
   port: 2666
 # files_path: uploaded_files
 files_path: D:\a_source\test
-
+log: logging.ini
+# 加密key jwt
 SECRET_KEY : 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
-# database:
+database:
   # 关系数据库 带postgis插件
   # postgresql:
     # host: 127.0.0.1
@@ -18,12 +21,12 @@ SECRET_KEY : 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
     # path: ./data.db
     # name: test
   # 图数据库
-  # neo4j:
-    # host: 127.0.0.1
-    # port: 7687
-    # user: neo4j
-    # password: neo4j
-    # database: test
+  neo4j:
+    host: 127.0.0.1
+    port: 7687
+    user: neo4j
+    password: neo4j
+    database: test
   # 嵌入式图数据库
   # kuzu:
     # host: 127.0.0.1

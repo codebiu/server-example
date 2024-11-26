@@ -28,13 +28,16 @@ if __name__ == "__main__":
     #     return json_list
 
     def get_db():
-        db = DataBaseNeo4j("neo4j", "here111111", "localhost", "7687")
+        db = DataBaseNeo4j("neo4j", "1111111", "localhost", "7687")
         db.connect()
         db.cypher_query("MATCH (n) DETACH DELETE n")
         return db
 
     async def main():
+        start_time = time.time()
         db = get_db()
+        print("db连接", time.time() - start_time)
+        start_time = time.time()
         project = r"D:\test\fastapi"
         project_name = "fastapi"
         # file_list,size = DirectoryTree.build_directory_list(project)
@@ -43,7 +46,8 @@ if __name__ == "__main__":
         # file_list 中type为'file'的节点
         file_list = [file for file in directory_list if file["type"] == "File"]
         folder_list = [file for file in directory_list if file["type"] == "Folder"]
-
+        print("解析文件树：", time.time() - start_time)
+        start_time = time.time()
         query_create_file = f"""
                     CREATE (f:File {{ 
                         name: $label, 
@@ -59,17 +63,31 @@ if __name__ == "__main__":
                         }})
                     """
         start_time = time.time()
-        db.cypher_query_batchs([
-            {
-                "query": query_create_file,
-                "params":file_list
-            },
-            {
-                "query": query_create_folder,
-                "params": folder_list
-            }
-        ])
-        print("创建文件节点时间：", time.time() - start_time)
-
+        db.cypher_query_batchs(
+            [
+                {"query": query_create_file, "params": file_list},
+                {"query": query_create_folder, "params": folder_list},
+            ]
+        )
+        print("创建文件节点：", time.time() - start_time)
+        start_time = time.time()
+        # 关联文件文件夹 file 路径[0,1]去除最后一个[0]和1与文件夹路径[0]name1的1对齐
+        relation_folder_file = f"""MATCH (f:File), (d:Folder) 
+                                    WHERE f.path[..-1] = d.path AND f.path[-1] = d.name
+                                    MERGE (d)-[:include]->(f)
+                                """
+        # 关联文件夹 防止文件夹文件同名 单独处理文件夹从属关系
+        relation_folder_folder = f"""MATCH (f:Folder), (d:Folder) 
+                                    WHERE f.path[..-1] = d.path AND f.path[-1] = d.name
+                                    MERGE (d)-[:include]->(f)
+                                """
+        db.cypher_query_batchs(
+            [{"query": relation_folder_file}, {"query": relation_folder_folder}]
+        )
+        print("创建关系：", time.time() - start_time)
+        
+        # 解析文件语法树
+        
+        
     # 运行主函数
     asyncio.run(main())
