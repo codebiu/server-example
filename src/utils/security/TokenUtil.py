@@ -10,7 +10,7 @@ class Token(BaseModel):
     
 class TokenUtil:
 
-    def __init__(self, SECRET_KEY="09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"):
+    def __init__(self, SECRET_KEY="19d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"):
         # 加密密钥
         self.SECRET_KEY = SECRET_KEY
         # 加密方式
@@ -18,7 +18,8 @@ class TokenUtil:
         # 过期时间
         self.EXPIRE_MINUTES = timedelta(minutes=30)
         # 加密
-        # 密码加密
+        # 密码加密 Header和Payload部分分别进行Base64Url编码成消息字符串。
+        # 使用指定的算法（例如HMAC SHA256）和密钥对消息字符串进行签名
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         # pwd_context.hash(password)
 
@@ -88,10 +89,12 @@ class TokenUtil:
 
 # 示例用法
 if __name__ == "__main__":
-    token_util = TokenUtil(code=None)
+    
+    import time
+    token_util = TokenUtil()
     
     # 创建 JWT
-    data = {"sub": "johndoe"}
+    data = {"sub": "test123"}
     token = token_util.data2token(data)
     print(f"Generated Token: {token}")
     
@@ -100,7 +103,7 @@ if __name__ == "__main__":
     from starlette.requests import Request as StarletteRequest
     
     class MockRequest(StarletteRequest):
-        headers = {"Authorization": f"Bearer {token}"}
+        headers = {"Authorization": f"Bearer {token.access_token}"}
     
     mock_request = MockRequest(scope={"type": "http"})
     try:
@@ -111,7 +114,14 @@ if __name__ == "__main__":
 
     # 更新 JWT
     try:
+        time.sleep(1)  # 等待一段时间以使令牌更新依赖时间戳不一致
         new_token = token_util.update_token(mock_request)
         print(f"Updated Token: {new_token}")
+        
+        print(f"token是否一致: {token.access_token == new_token.access_token}")
     except HTTPException as e:
         print(f"Error: {e.detail}")
+        
+    # 多对消息字符串和签名组可以提供更多数据点，但推导出SECRET_KEY仍然是极其困难的 较为安全
+        
+    
