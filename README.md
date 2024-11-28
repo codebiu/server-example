@@ -45,6 +45,8 @@ pip3 install neo4j
 pip install pyjwt
 # 密码加密
 pip install passlib[bcrypt]
+# 测试
+pip install pytest
 # full server
 pip3 install uvicorn fastapi sqlmodel python-multipart aiosqlite aiofiles pyyaml neo4j kuzu pyjwt passlib[bcrypt]
 # 导出
