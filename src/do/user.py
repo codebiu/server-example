@@ -17,10 +17,15 @@ class User(UserBase, table=True):
     )
     created_at: datetime = Field(default=datetime.now())
     update_at: datetime | None = None
+    # pwd
+    p: str | None = None
 
 
 class UserUpdate(UserBase):
     id: str
+    name: str
+    # pwd
+    p: str | None = None
     update_at: datetime = Field(default=datetime.now())
 
 

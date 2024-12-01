@@ -37,6 +37,12 @@ class UserDao:
     @DataNoCommit
     async def select(id: str, session=AsyncSession) -> User | None:
         return await session.get(User, id)
+    
+    @DataNoCommit
+    async def select_by_name(name: str, session=AsyncSession) -> User | None:
+        query = select(User).where(User.name == name)
+        result = await session.exec(query)
+        return result.scalars().first()
 
     @DataNoCommit
     async def list(session=AsyncSession) -> list[User]:

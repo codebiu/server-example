@@ -8,7 +8,7 @@ from typing import Union
 from pydantic import BaseModel
 from config.log import console
 from config.path import path_base
-
+from config.index import conf
 # lib
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,8 +59,10 @@ async def add_process_time_header(request: Request, call_next):
 
     return response
 
+############################### token通用过滤 ##############################################
 
-token_util = TokenUtil()
+SECRET_KEY = conf['SECRET_KEY']
+token_util = TokenUtil(SECRET_KEY)
 def dealToken(request: Request, response: Response):
     # 解析出数据
     data = token_util.token2data(request)

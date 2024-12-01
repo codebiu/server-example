@@ -24,6 +24,9 @@ class UsersService:
     async def select(id: str) -> User | None:
         return await UserDao.select(id)
     
+    async def select_by_name(name: str) -> User | None:
+        return await UserDao.select(name)
+    
     @staticmethod
     async def list() -> list[User]:
         return await UserDao.list()
