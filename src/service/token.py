@@ -1,7 +1,8 @@
 # self
+from fastapi import Request
 from do.user import User,UserCreate
 from dao.user import UserDao
-
+from config.fastapi_config import token_util
 # lib
 from passlib.context import CryptContext
 
@@ -10,10 +11,34 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # pwd_context.hash(password)
 
 class TokenService:
-    """token"""
+    """token  用邮箱验证"""
+    
+    
+    @staticmethod
+    async def create_access_token(email:str,password:str):
+        """生成token"""
+            user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+          if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = token_util.data2token(data={"sub": user.username})
+        
+        data = {"sub": "test123"}
+    token = token_util.data2token(data)
+        to_encode = data.copy()
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(minutes=15)
+        to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(to_encode, token_util.SECRET_KEY, algorithm=ALGORITHM)
+        return encoded_jwt
 
     @staticmethod
-    def authenticate_user(username: str, password: str):
+    async def authenticate_user(username: str, password: str):
         """
         验证用户身份。
 
@@ -22,14 +47,14 @@ class TokenService:
         :param password: 明文密码。
         :return: 如果验证成功，返回用户对象；否则返回 False。
         """
-        user = UserDao.select_by_name( username)
+        user =await UserDao.select_by_name( username)
         # 验证明文密码是否与已哈希的密码匹配
-        if not user or not pwd_context.verify(password, user.hashed_password):
+        if not user or not pwd_context.verify(password, user.p):
             return False
         return user
 
 
-    async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    async def get_current_user(request: Request):
         """
         获取当前用户信息。
 
@@ -37,14 +62,9 @@ class TokenService:
         :return: 当前用户对象。
         :raises HTTPException: 如果无法验证凭据或用户不存在。
         """
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
         try:
             # decode 解码token内容
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = token_util.token_request2data(request)
             username: str = payload.get("sub")
             if username is None:
                 raise credentials_exception
@@ -57,12 +77,6 @@ class TokenService:
         return user
 
 
-    async def get_current_active_user(
-        current_user: Annotated[User, Depends(get_current_user)],
-    ):
-        if current_user.disabled:
-            raise HTTPException(status_code=400, detail="Inactive user")
-        return current_user
 
     
 # fake_users_db = {

@@ -32,13 +32,7 @@ async def login_for_access_token(
     :return: 包含访问令牌和令牌类型的响应。
     """
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    token = token_util.data2token(data={"sub": user.username})
+  
     return token
 
 
