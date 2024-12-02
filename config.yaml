@@ -6,9 +6,15 @@ server:
 # files_path: uploaded_files
 files_path: D:\a_source\test
 log: logging.ini
-SECRET_KEY : 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
-
-# database:
+# 加密key jwt
+security:
+  # 加密算法
+  algorithm: HS256
+  # 加密密钥
+  secret: 1111111
+  # 加密过期时间miniutes
+  expire: 30
+database:
   # 关系数据库 带postgis插件
   # postgresql:
     # host: 127.0.0.1
@@ -21,12 +27,12 @@ SECRET_KEY : 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
     # path: ./data.db
     # name: test
   # 图数据库
-  # neo4j:
-    # host: 127.0.0.1
-    # port: 7687
-    # user: neo4j
-    # password: neo4j
-    # database: test
+  neo4j:
+    host: 127.0.0.1
+    port: 7687
+    user: neo4j
+    password: 1111111
+    database: neo4j
   # 嵌入式图数据库
   # kuzu:
     # host: 127.0.0.1
@@ -34,4 +40,11 @@ SECRET_KEY : 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
     # user: root
     # password: root
     # database: test
+ai:
+  openai:
+    api_key: 1111111
+    chat_model: gpt-4o
+    embedding_model: text-embedding-3-large
+    chat_url: https://api.openai.com/v1/chat/completions
+    embedding_url: https://api.openai.com/v1/embeddings
   
