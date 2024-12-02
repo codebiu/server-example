@@ -101,20 +101,16 @@ if __name__ == "__main__":
     from config.index import conf
     # 示例使用
     async def main():
-        openai_set = conf['ai']['openai']
-        api_key = openai_set['api_key']
-        chat_url = "https://api.openai.com/v1/chat/completions"
-        chat_model = "gpt-4o-mini"
-        embedding_url = "https://api.openai.com/v1/embeddings"
-        embedding_model = "text-embedding-3-large"
+   # 获取ai_api
+        # openai_set = conf["ai"]["openai"]
+        openai_set = conf["ai"]["aihubmix"]
         client = OpenAIClient(
-            api_key=api_key,
-            chat_url=chat_url,
-            chat_model=chat_model,
-            embedding_url = embedding_url,
-            embedding_model=embedding_model
+            api_key=openai_set["api_key"],
+            chat_url=openai_set["chat_url"],
+            chat_model=openai_set["chat_model"],
+            embedding_url=openai_set["embedding_url"],
+            embedding_model=openai_set["embedding_model"],
         )
-
         # 测试 embedding 方法
         text = "Hello, how are you?"
         embedding = await client.embedding(text)

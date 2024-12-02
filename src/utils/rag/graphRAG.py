@@ -7,6 +7,7 @@ import time
 
 # from utils.dataBase.DataBaseNeo4j import GraphTraversal
 from utils.ast.AstPython import AstPython
+from utils.rag.graphRAG.prompt import AnalysisPrompt
 from utils.media.openai.OpenAIClient import OpenAIClient
 
 # 文件遍历
@@ -85,6 +86,9 @@ class GraphRAG:
             # 获取指向当前节点的子节点
             "get_node_child_by_id": f""" 
                     MATCH (n)-[]->(m) where id(m)=$id RETURN DISTINCT n as obj,id(n) as id, labels(n) as labels""",
+            "add_describe_embedding_by_id": f"""
+                    MATCH (n) where id(n)=$id set n.describe =$describe,n.embedding =$embedding
+            """,
         }
 
     def _clear(self):
@@ -131,7 +135,8 @@ class GraphRAG:
         label = node_root["labels"][0]
         id = node_root["id"]
         # 只分析没有描述的节点
-        if "describe" not in obj:
+        # if "describe" not in obj:
+        if True:
             # 获取子节点
             childs = self.db.match_query(
                 self.cypterObj["get_node_child_by_id"],
@@ -139,33 +144,49 @@ class GraphRAG:
             )
             describes = {}
             # 本体描述
-            describes["当前节点类别是:"] = label
-            describes["当前节点部分信息:"] = obj
+            # describes["当前节点类别是:"] = label
+            # describes["当前节点部分信息:"] = obj
+            child_describes = None
             if len(childs) > 0:
                 # 有子节点汇总信息
                 tasks = [self.describe_node(node_child) for node_child in childs]
                 child_describes = await asyncio.gather(*tasks)
-                describes["子节点信息汇总:"] = child_describes
+                # describes["子节点信息汇总:"] = child_describes
                 # 根据描述汇总
             # ai总结 子节点和本身
-            describes_json = json.dumps(describes, ensure_ascii=False)
-            messages = [
-                {
-                    "role": "system",
-                    "content": """
-                        # 你是一个专业的python代码分析师,精通garphrag和代码分析,现在我们有一个python项目抽取的graph图""",
-                },
-                {
-                    "role": "user",
-                    "content": f"""
-                        请分析当前节点,节点包含当前节点信息和子节点信息汇总,用中文200字以内总结当前节点的功能,
-                        调用关系 要分析的节点:{describes_json}""",
-                },
-            ]
+            # describes_json = json.dumps(describes, ensure_ascii=False)
+            messages = []
+            messages.append(AnalysisPrompt.get_prompt_system("python"))
+            # 根据语言和节点类型分析获取prompt
+            if label == "Function":
+                messages.append(AnalysisPrompt.get_prompt_user_function("python", obj))
+            elif label == "Class":
+                messages.append(
+                    AnalysisPrompt.get_prompt_user_class(obj, child_describes)
+                )
+            elif label == "File":
+                messages.append(
+                    AnalysisPrompt.get_prompt_user_file(obj, child_describes)
+                )
+            elif label == "Folder":
+                messages.append(
+                    AnalysisPrompt.get_prompt_user_folder(obj, child_describes)
+                )
             print(f'Task {str(id)} 开始解析 started at {time.strftime("%X")}')
-            invoke_result =await self.invoke(messages)
-            # embedding_result = todo embedding invoke_result
+            invoke_result = await self.invoke(messages)
+            invoke_result = invoke_result["content"]
             obj["describe"] = invoke_result
+            # 向量化
+            if label == "Function":
+                if obj["code"]:
+                    invoke_result = invoke_result + "函数代码:" + obj["code"]
+            embedding_result = await self.embedding(invoke_result)
+            embedding_result = embedding_result
+            # 图内插入节点信息
+            self.db.match_query(
+                self.cypterObj["add_describe_embedding_by_id"],
+                {"id": id, "embedding": embedding_result, "describe": invoke_result},
+            )
             print(f'Task {invoke_result} finished at {time.strftime("%X")}')
         # 返回节点描述
         return obj["describe"]
@@ -298,18 +319,14 @@ if __name__ == "__main__":
         db = DataBaseNeo4j(user, password, host, port, database)
 
         # 获取ai_api
-        openai_set = conf["ai"]["openai"]
-        api_key = openai_set["api_key"]
-        chat_url = "https://api.openai.com/v1/chat/completions"
-        chat_model = "gpt-4o"
-        embedding_url = "https://api.openai.com/v1/embeddings"
-        embedding_model = "text-embedding-3-large"
+        # openai_set = conf["ai"]["openai"]
+        openai_set = conf["ai"]["aihubmix"]
         client = OpenAIClient(
-            api_key=api_key,
-            chat_url=chat_url,
-            chat_model=chat_model,
-            embedding_url=embedding_url,
-            embedding_model=embedding_model,
+            api_key=openai_set["api_key"],
+            chat_url=openai_set["chat_url"],
+            chat_model=openai_set["chat_model"],
+            embedding_url=openai_set["embedding_url"],
+            embedding_model=openai_set["embedding_model"],
         )
 
         # 构建图
