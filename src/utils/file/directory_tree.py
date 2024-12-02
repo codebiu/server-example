@@ -79,24 +79,35 @@ class DirectoryTree:
                 tree_node["size"] = tree_node_stat.st_size
         return tree
 
-    def build_directory_tree_root(root_path, tree=None):
+    def build_directory_tree_root(root_path, node_parent=None):
         root_path = Path(root_path)
-        node = {"label": root_path.name, "path": str(root_path), "children": []}
-        # 非首级节点
-        if tree is not None:
-            tree["children"].append(node)
-        tree = node
-
+        node_this = {
+            "label": root_path.name,
+            "path": str(root_path),
+            "size": 0,
+            "children": [],
+        }
         for item in root_path.iterdir():
             if item.is_dir():
-                DirectoryTree.build_directory_tree_obj(item, tree)
+                DirectoryTree.build_directory_tree_root(item, node_this)
             else:
-                file_node = {"label": item.name, "path": str(item)}
-                tree["children"].append(file_node)
-        return tree
+                list_node_stat = item.stat()
+                size_file = list_node_stat.st_size
+                file_node = {
+                    "label": item.name,
+                    "path": str(item),
+                    "size": size_file,
+                }
+                node_this["children"].append(file_node)
+                node_this["size"] += size_file
+        # 非首级节点 当前记入父级
+        if node_parent is not None:
+            node_parent["children"].append(node_this)
+            node_parent["size"] += node_this["size"]
+        return node_this
 
-    def build_directory_list_root(root_path,root_path_this=None,node_parent=None):
-        '''遍历文件获取属性和关系'''
+    def build_directory_list_root(root_path, root_path_this=None, node_parent=None):
+        """遍历文件获取属性和关系"""
         list_all = []
         # root_path_this 为了有root_path 截取部分路径
         if root_path_this is None:
@@ -105,11 +116,19 @@ class DirectoryTree:
 
         relative_path = root_path_this.relative_to(root_path.parent).parent.parts
         # 当前文件夹节点
-        node_this = {"label": root_path_this.name, "path": list(relative_path), "type": "Folder","size":0}
+        node_this = {
+            "label": root_path_this.name,
+            "path": list(relative_path),
+            "type": "Folder",
+            "size": 0,
+            "path_full": str(root_path_this),
+        }
         list_all.append(node_this)
         for item in root_path_this.iterdir():
             if item.is_dir():
-                lsit_new = DirectoryTree.build_directory_list_root(root_path,item,node_this)
+                lsit_new = DirectoryTree.build_directory_list_root(
+                    root_path, item, node_this
+                )
                 list_all.extend(lsit_new)
             else:
                 list_node_stat = item.stat()
@@ -120,6 +139,7 @@ class DirectoryTree:
                     "path": list(relative_path),
                     "type": "File",
                     "size": size_file,
+                    "path_full": str(item),
                 }
                 list_all.append(node_file)
                 node_this["size"] += size_file
@@ -127,7 +147,7 @@ class DirectoryTree:
         if node_parent is not None:
             node_parent["size"] += node_this["size"]
         return list_all
-    
+
     # def build_directory_list_root(root_path):
     #     list = []
     #     size = 0

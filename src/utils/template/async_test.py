@@ -11,9 +11,12 @@ async def task(name):
 async def main():
     start_time = time.time()
 
-    # 创建任务列表
-    tasks = [task(f"task-{i}") for i in range(1, 6)]
-
+    # # 创建任务列表
+    # tasks = [task(f"task-{i}") for i in range(1, 6)]
+    tasks = []
+    for i in range(1, 6):
+        t = task(f"task-{i}")
+        tasks.append(t)
     # 并发执行所有任务
     await asyncio.gather(*tasks)
     

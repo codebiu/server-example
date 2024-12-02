@@ -18,6 +18,9 @@ class FileUtils:
                     break
                 yield chunk
 
+# 文件类型和内容常见
+
+
 
 # if __name__ == "__main__":
 # current_dir = Path.cwd()  # 获取当前工作目录

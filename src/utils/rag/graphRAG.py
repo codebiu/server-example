@@ -1,93 +1,322 @@
-import asyncio
-import sys
-from pathlib import Path
+# lib
+import json
+import sys, pathlib
+
+[sys.path.append(str(pathlib.Path(__file__).resolve().parents[i])) for i in range(3)]
 import time
 
+# from utils.dataBase.DataBaseNeo4j import GraphTraversal
+from utils.ast.AstPython import AstPython
+from utils.media.openai.OpenAIClient import OpenAIClient
 
-# 获取当前文件的绝对路径，然后向上移动两级目录
-parent_path = Path(__file__).resolve().parent.parent.parent
-# 将目标目录添加到系统路径中
-sys.path.append(str(parent_path))
-print(sys.path)
-import json
+# 文件遍历
+from utils.file.directory_tree import DirectoryTree
 
 
-if __name__ == "__main__":
-    from utils.dataBase.DataBaseNeo4j import DataBaseNeo4j
+class GraphRAG:
+    def __init__(self, project_path, project_name):
+        self.project = project_path
+        self.project_name = project_name
+        self.chunker = AstPython()
+        self._get_cypher()
 
-    # 文件遍历
-    from utils.file.directory_tree import DirectoryTree
+    def _get_db(self, db):
+        self.db = db
+        self.db.connect()
 
-    # from utils.rag.graphRAG.KuzuGraph import KuzuGraph
-    import polars as pl
+    def _get_ai(self, embedding, invoke):
+        self.embedding = embedding
+        self.invoke = invoke
 
-    # def get_file_info(file_path):
-    #     directory_list = DirectoryTree.build_directory_list(file_path)
-    #     # 将目录树转换为 JSON 格式
-    #     json_list  = json.dumps( directory_list, ensure_ascii=False)
-    #     return json_list
-
-    def get_db():
-        db = DataBaseNeo4j("neo4j", "1111111", "localhost", "7687")
-        db.connect()
-        db.cypher_query("MATCH (n) DETACH DELETE n")
-        return db
-
-    async def main():
-        start_time = time.time()
-        db = get_db()
-        print("db连接", time.time() - start_time)
-        start_time = time.time()
-        project = r"D:\test\fastapi"
-        project_name = "fastapi"
-        # file_list,size = DirectoryTree.build_directory_list(project)
-        directory_list = DirectoryTree.build_directory_list_root(project)
-        # print(json.dumps(file_list, ensure_ascii=False, indent=4),size)
-        # file_list 中type为'file'的节点
-        file_list = [file for file in directory_list if file["type"] == "File"]
-        folder_list = [file for file in directory_list if file["type"] == "Folder"]
-        print("解析文件树：", time.time() - start_time)
-        start_time = time.time()
-        query_create_file = f"""
+    def _get_cypher(self):
+        self.cypterObj = {
+            "query_create_file": f"""
                     CREATE (f:File {{ 
                         name: $label, 
                         path: $path, 
                         size: $size
                         }})
-                    """
-        query_create_folder = f"""
-                    CREATE (f:Folder {{ 
-                        name: $label, 
-                        path: $path, 
-                        size: $size
-                        }})
-                    """
+                    """,
+            "query_create_folder": f"""
+                                CREATE (f:Folder {{ 
+                                    name: $label, 
+                                    path: $path, 
+                                    size: $size
+                                    }})
+                                """,
+            "relation_folder_folder": f"""
+                    MERGE (p:Folder {{name: $fp.label, path: $fp.path, size: $fp.size}})
+                    MERGE (s:Folder {{name: $fs.label, path: $fs.path, size: $fs.size}})
+                    CREATE (s)-[:in]->(p)
+                    """,
+            "relation_folder_file": f"""
+                    MERGE (p:Folder {{name: $fp.label, path: $fp.path, size: $fp.size}})
+                    CREATE (s:File {{name: $fs.label, path: $fs.path, size: $fs.size}})
+                    CREATE (s)-[:in]->(p)
+                    """,
+            # 代码注释
+            "relation_file_class": f"""
+                    MERGE (p:File {{name: $label, path: $path, size: $size}})
+                    CREATE (s:Class {{name: $name, byte_range: $byte_range, argument_list: $argument_list,class_string: $class_string,assignment: $assignment}})
+                    CREATE (s)-[:belong]->(p)
+            """,
+            "relation_class_function": f"""
+                    MERGE (p:Class {{name: $c.name, byte_range: $c.byte_range, argument_list: $c.argument_list}})
+                    CREATE (s:Function {{name: $f.name, byte_range: $f.byte_range, code: $f.code, call: $f.call,
+                    return_type: $f.return_type,size: $f.size, parameters: $f.parameters}})
+                    CREATE (s)-[:belong]->(p)
+            """,
+            "relation_file_function": f"""
+                    MERGE (p:File {{name: $fp.label, path: $fp.path, size: $fp.size}})
+                    CREATE (s:Function {{name: $f.name, byte_range: $f.byte_range, code: $f.code, call: $f.call,
+                    return_type: $f.return_type,size: $f.size, parameters: $f.parameters}})
+                    CREATE (s)-[:belong]->(p)
+            """,
+            "file_import_other": f"""
+                    MATCH (f:File {{path: $f}}) set f.import =$i,f.other =$o
+            """,
+            # "insert_call_file": f"""
+            #         MERGE (p:File {{name: $label, path: $path, size: $size}})
+            #         CREATE (s:Class {{name: $name, byte_range: $byte_range, argument_list: $argument_list}})
+            #         CREATE (s)-[:belong]->(p)
+            # """,
+            "get_node_by_path": f"""
+                    MATCH (n) where n.path = $path RETURN n as obj,id(n) as id, labels(n) as labels""",
+            # 获取指向当前节点的子节点
+            "get_node_child_by_id": f""" 
+                    MATCH (n)-[]->(m) where id(m)=$id RETURN DISTINCT n as obj,id(n) as id, labels(n) as labels""",
+        }
+
+    def _clear(self):
+        self.db.cypher_query("MATCH (n) DETACH DELETE n")
+
+    def _file_tree(self):
+        self.directory_tree = DirectoryTree.build_directory_tree_root(self.project)
+
+    def _graph_file(self):
+        # 考虑文件迁移问题?
         start_time = time.time()
-        db.cypher_query_batchs(
-            [
-                {"query": query_create_file, "params": file_list},
-                {"query": query_create_folder, "params": folder_list},
-            ]
-        )
-        print("创建文件节点：", time.time() - start_time)
-        start_time = time.time()
-        # 关联文件文件夹 file 路径[0,1]去除最后一个[0]和1与文件夹路径[0]name1的1对齐
-        relation_folder_file = f"""MATCH (f:File), (d:Folder) 
-                                    WHERE f.path[..-1] = d.path AND f.path[-1] = d.name
-                                    MERGE (d)-[:include]->(f)
-                                """
-        # 关联文件夹 防止文件夹文件同名 单独处理文件夹从属关系
-        relation_folder_folder = f"""MATCH (f:Folder), (d:Folder) 
-                                    WHERE f.path[..-1] = d.path AND f.path[-1] = d.name
-                                    MERGE (d)-[:include]->(f)
-                                """
-        db.cypher_query_batchs(
-            [{"query": relation_folder_file}, {"query": relation_folder_folder}]
-        )
+        self.num = {
+            "folder": 0,
+            "file": 0,
+            "class": 0,
+            "function": 0,
+        }
+
+        self._graph_tree_all(self.directory_tree)
+
+        print("创建：", self.num)
         print("创建关系：", time.time() - start_time)
-        
-        # 解析文件语法树
-        
-        
+
+        # 解释节点(分层)
+
+        # 聚合虚拟节点
+
+    async def describe(self):
+        # 将结果转换为字典列表
+        # path = "D:\\test\\fastapi"
+        path = "D:\\test\\fastapi\\dependencies"
+        records = self.db.match_query(
+            self.cypterObj["get_node_by_path"],
+            {"path": path},
+        )
+        #
+        describe_all = await self.describe_node(records[0])
+        # """
+        a = 1
+
+    async def describe_node(self, node_root):
+        """从根节点广度处理每一层数据describe向上汇总"""
+        obj = node_root["obj"]
+        label = node_root["labels"][0]
+        id = node_root["id"]
+        # 只分析没有描述的节点
+        if "describe" not in obj:
+            # 获取子节点
+            childs = self.db.match_query(
+                self.cypterObj["get_node_child_by_id"],
+                {"id": id},
+            )
+            describes = {}
+            # 本体描述
+            describes["当前节点类别是:"] = label
+            describes["当前节点部分信息:"] = obj
+            if len(childs) > 0:
+                # 有子节点汇总信息
+                tasks = [self.describe_node(node_child) for node_child in childs]
+                child_describes = await asyncio.gather(*tasks)
+                describes["子节点信息汇总:"] = child_describes
+                # 根据描述汇总
+            # ai总结 子节点和本身
+            describes_json = json.dumps(describes, ensure_ascii=False)
+            messages = [
+                {
+                    "role": "system",
+                    "content": """
+                        # 你是一个专业的python代码分析师,精通garphrag和代码分析,现在我们有一个python项目抽取的graph图""",
+                },
+                {
+                    "role": "user",
+                    "content": f"""
+                        请分析当前节点,节点包含当前节点信息和子节点信息汇总,用中文200字以内总结当前节点的功能,
+                        调用关系 要分析的节点:{describes_json}""",
+                },
+            ]
+            print(f'Task {str(id)} 开始解析 started at {time.strftime("%X")}')
+            invoke_result =await self.invoke(messages)
+            # embedding_result = todo embedding invoke_result
+            obj["describe"] = invoke_result
+            print(f'Task {invoke_result} finished at {time.strftime("%X")}')
+        # 返回节点描述
+        return obj["describe"]
+
+    def _graph_tree_all(self, node: dict, parent_node=None):
+        """迭代创建节点插入图"""
+        if "children" in node:
+            node_folder = node
+            # Folder
+            self.db.cypher_query(self.cypterObj["query_create_folder"], node_folder)
+            # 关联父子文件夹
+            if parent_node is not None:
+                self.db.cypher_query(
+                    self.cypterObj["relation_folder_folder"],
+                    {
+                        "fp": parent_node,
+                        "fs": node_folder,
+                    },
+                )
+            for child in node_folder["children"]:
+                self._graph_tree_all(child, node_folder)
+            self.num["folder"] += 1
+        else:
+            node_file = node
+            # 文件处理
+            self.db.cypher_query(
+                self.cypterObj["relation_folder_file"],
+                {
+                    "fp": parent_node,
+                    "fs": node_file,
+                },
+            )
+            # if(node_file['label'] =='models.py'):
+            #     a =1
+            # ast
+            chunk = self.astCode_neo(node_file)
+            if chunk is not None:
+                # class解析
+                for node_class in chunk["class"]:
+                    self.num["class"] += 1
+                    self.db.cypher_query(
+                        self.cypterObj["relation_file_class"],
+                        node_file | node_class,
+                    )
+                    # class 子函数
+                    for node_function in node_class["function"]:
+                        self.num["function"] += 1
+                        self.db.cypher_query(
+                            self.cypterObj["relation_class_function"],
+                            {
+                                "f": node_function,
+                                "c": node_class,
+                            },
+                        )
+                # function解析
+                for node_function in chunk["function"]:
+                    self.num["function"] += 1
+                    self.db.cypher_query(
+                        self.cypterObj["relation_file_function"],
+                        {
+                            "fp": node_file,
+                            "f": node_function,
+                        },
+                    )
+                # import解析
+                self.db.cypher_query(
+                    self.cypterObj["file_import_other"],
+                    {
+                        "f": node_file["path"],
+                        "i": chunk["import"],
+                        "o": chunk["other"],
+                    },
+                )
+
+                self.num["file"] += 1
+                print("解析完成...    ", node_file["path"])
+
+    def astCode_neo(self, node_file):
+        file_path = node_file["path"]
+        if file_path.endswith(".py"):
+            # 读取python文件到字符串
+            with open(file_path, "r", encoding="utf-8") as f:
+                text = f.read()
+                new_chunk = self.chunker.chunk(text)
+                return new_chunk
+
+    async def create(self):
+        start_time = time.time()
+        # self._clear()
+        # print("重置数据库", time.time() - start_time)
+        # self._file_tree()
+        # self._graph_file()
+        await self.describe()
+
+
+async def task_fuc(name):
+    print(f'Task {name} started at {time.strftime("%X")}')
+    await asyncio.sleep(1)  # 模拟耗时一秒的操作
+    print(f'Task {name} finished at {time.strftime("%X")}')
+
+
+if __name__ == "__main__":
+    # 引入路径
+    import sys, pathlib
+
+    [
+        sys.path.append(str(pathlib.Path(__file__).resolve().parents[i]))
+        for i in range(4)
+    ]
+    # self
+    from utils.dataBase.DataBaseNeo4j import DataBaseNeo4j
+    from config.index import conf
+
+    # lib
+    import asyncio
+
+    async def main():
+        start_time = time.time()
+        print("db连接", time.time() - start_time)
+        start_time = time.time()
+        project = r"D:\test\fastapi"
+        project_name = "fastapi"
+        # 获取图数据库
+        neo4j = conf["database"]["neo4j"]
+        host = neo4j["host"]
+        port = neo4j["port"]
+        user = neo4j["user"]
+        password = neo4j["password"]
+        database = neo4j["database"]
+        db = DataBaseNeo4j(user, password, host, port, database)
+
+        # 获取ai_api
+        openai_set = conf["ai"]["openai"]
+        api_key = openai_set["api_key"]
+        chat_url = "https://api.openai.com/v1/chat/completions"
+        chat_model = "gpt-4o"
+        embedding_url = "https://api.openai.com/v1/embeddings"
+        embedding_model = "text-embedding-3-large"
+        client = OpenAIClient(
+            api_key=api_key,
+            chat_url=chat_url,
+            chat_model=chat_model,
+            embedding_url=embedding_url,
+            embedding_model=embedding_model,
+        )
+
+        # 构建图
+        graphRAG = GraphRAG(project, project_name)
+        graphRAG._get_db(db)
+        graphRAG._get_ai(client.embedding, client.invoke)
+        await graphRAG.create()
+
     # 运行主函数
     asyncio.run(main())
