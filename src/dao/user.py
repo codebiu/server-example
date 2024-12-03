@@ -3,7 +3,7 @@ from sqlmodel import select
 
 # self
 from config.db import Data,DataNoCommit
-from do.user import User,UserCreate, UserPublic
+from do.user import User,UserCreate, UserLogin, UserPublic
 
 
 class UserDao:
@@ -39,8 +39,8 @@ class UserDao:
         return await session.get(User, id)
     
     @DataNoCommit
-    async def select_by_name(name: str, session=AsyncSession) -> User | None:
-        query = select(User).where(User.name == name)
+    async def select_by_email(email: str, session=AsyncSession) -> UserLogin | None:
+        query = select(UserLogin).where(UserLogin.email == email)
         result = await session.exec(query)
         return result.scalars().first()
 

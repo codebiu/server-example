@@ -11,8 +11,8 @@ import jwt
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
-from pydantic import BaseModel
 from do.token import Token
+from service.token import TokenService
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -21,25 +21,27 @@ from do.token import Token
 router = APIRouter()
 
 
-@app.post("/", summary="post 获取访问令牌")
+@router.post("/", summary="post 获取访问令牌")
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm,
+    form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Token:
     """
     首次登陆，账户密码获取访问令牌。
-
     :param form_data: 包含用户名和密码的表单数据。
     :return: 包含访问令牌和令牌类型的响应。
     """
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-  
+    encoded_jwt =await TokenService.create_access_token(
+        form_data.username, form_data.password
+    )
+    token = Token(access_token=encoded_jwt, token_type="Bearer")
     return token
 
 
-@router.get("/users/me/", response_model=User)
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)],
-):
-    return current_user
+# @router.get("/users/me/", response_model=User)
+# async def read_users_me(
+#     current_user: Annotated[User, Depends(get_current_active_user)],
+# ):
+#     return current_user
+
 
 app.include_router(router, prefix="/token", tags=["验证"])

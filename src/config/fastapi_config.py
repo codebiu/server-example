@@ -2,6 +2,7 @@
     fastapi 基础配置
     fastapi base config
 """
+
 # self
 from typing import Union
 
@@ -9,6 +10,7 @@ from pydantic import BaseModel
 from config.log import console
 from config.path import path_base
 from config.index import conf
+
 # lib
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.docs import get_swagger_ui_html
 import time
 
-from utils.security import TokenUtil
+from utils.security.TokenUtil import TokenUtil
 
 app = FastAPI(
     title="python工程模板",
@@ -55,18 +57,21 @@ async def add_process_time_header(request: Request, call_next):
     response: Response = await call_next(request)
     dealToken(request, response)
     # X- 作为前缀代表专有自定义请求头
-    response.headers["X-Process-Time"] = str((time.time() - start_time)* 1000)
+    response.headers["X-Process-Time"] = str((time.time() - start_time) * 1000)
 
     return response
 
+
 ############################### token通用过滤 ##############################################
 
-SECRET_KEY = conf['SECRET_KEY']
-token_util = TokenUtil(SECRET_KEY)
+security = conf["security"]
+token_util: TokenUtil = TokenUtil(
+    security["secret"], security["algorithm"], security["expire"]
+)
 def dealToken(request: Request, response: Response):
     # 解析出数据
-    data = token_util.token2data(request)
-    
+    # data = token_util.token2data(request)
+
     # 验证用户存在
     return
 
@@ -78,7 +83,7 @@ html_file = open(path_html / "index.html", "r", encoding="utf-8").read()
 
 
 # 首页 app非router挂载
-@app.get("/", response_class=HTMLResponse, summary="server首页html",tags=["base set"])
+@app.get("/", response_class=HTMLResponse, summary="server首页html", tags=["base set"])
 async def server():
     console.log("初始首页html")
     return html_file
@@ -88,6 +93,7 @@ async def server():
 app.mount(
     "/assets", StaticFiles(directory=path_html / "assets", html=True), name="assets"
 )
+
 
 ############################### 自定义 Swagger #######################################
 # 自定义 Swagger 文档路由，指向本地的 Swagger UI 文件
@@ -99,5 +105,6 @@ async def custom_swagger_ui_html():
         swagger_js_url="/assets/swagger-ui/swagger-ui-bundle.js",
         swagger_css_url="/assets/swagger-ui/swagger-ui.css",
     )
-    
+
+
 console.log("...server服务配置完成")

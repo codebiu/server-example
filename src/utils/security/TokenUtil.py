@@ -12,16 +12,20 @@ class TokenUtil:
 
     def __init__(
         self,
-        SECRET_KEY="19d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7",
+        secret,
+        algorithm,
+        expire
     ):
-        # 加密密钥
-        self.SECRET_KEY = SECRET_KEY
-        # 加密方式
-        self.ALGORITHM = "HS256"
-        # 过期时间
-        self.EXPIRE_MINUTES = timedelta(minutes=30)
-        # 加密
-        # 密码加密 Header和Payload部分分别进行Base64Url编码成消息字符串。
+        """
+            初始化 TokenUtil 实例。
+            :param secret: 用于签名的密钥。
+            :param algorithm: 用于签名的算法。
+            :param expire: 令牌的过期时间（分钟）。
+        """
+        self.SECRET_KEY = secret
+        self.ALGORITHM = algorithm
+        self.EXPIRE_MINUTES = timedelta(minutes=expire)
+        # 加密 密码加密 Header和Payload部分分别进行Base64Url编码成消息字符串。
         # 使用指定的算法（例如HMAC SHA256）和密钥对消息字符串进行签名
 
 

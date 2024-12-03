@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 from uuid import uuid4
 from datetime import datetime
@@ -23,7 +24,6 @@ class User(UserBase, table=True):
 
 class UserUpdate(UserBase):
     id: str
-    name: str
     # pwd
     p: str | None = None
     update_at: datetime = Field(default=datetime.now())
@@ -35,3 +35,8 @@ class UserCreate(UserBase):
 
 class UserPublic:
     id: str
+    
+class UserLogin(SQLModel):
+    """用于验证用户名和密码的模型"""
+    email: str
+    password: str

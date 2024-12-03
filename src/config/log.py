@@ -5,7 +5,7 @@ import logging.config
 from config.path import path_base
 from config.index import conf
 
-path_config = conf['state']['log_path']
+path_config = conf['log']
 # 读取配置文件
 print(path_config)
 # python3.10.4版本

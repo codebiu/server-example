@@ -1,5 +1,5 @@
 # self
-from do.user import User,UserCreate
+from do.user import User,UserCreate, UserLogin
 from dao.user import UserDao
 
 # lib
@@ -24,8 +24,8 @@ class UsersService:
     async def select(id: str) -> User | None:
         return await UserDao.select(id)
     
-    async def select_by_name(name: str) -> User | None:
-        return await UserDao.select(name)
+    async def select_by_email(email: str) -> UserLogin | None:
+        return await UserDao.select_by_email(email)
     
     @staticmethod
     async def list() -> list[User]:
