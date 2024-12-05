@@ -1,4 +1,5 @@
 import time
+from functools import wraps
 
 class Ticker:
     def __init__(self, reset=True) -> None:
@@ -15,6 +16,17 @@ class Ticker:
             self.ts = ts
         self.maps[name] = dt
         return dt
+    
+def timing_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()  # 记录开始时间
+        result = func(*args, **kwargs)  # 执行被装饰的函数
+        end_time = time.time()  # 记录结束时间
+        print(f"Function {func.__name__} took {end_time - start_time:.4f} seconds to execute.")
+        return result
+    return wrapper
+
     
 if __name__ == "__main__":
     # 创建 Ticker 实例

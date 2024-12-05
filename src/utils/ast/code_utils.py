@@ -2,36 +2,38 @@ import os
 from pygments.lexers import guess_lexer
 from pygments.util import ClassNotFound
 
+
 # 定义一些常见的编程语言及其特征
 language_features = {
-    'Python': {
-        'keywords': ['def', 'class', 'import', 'from'],
-        'comments': ['#'],
-        'extensions': ['.py']
+    "Python": {
+        "keywords": ["def", "class", "import", "from"],
+        "comments": ["#"],
+        "extensions": [".py"],
     },
-    'JavaScript': {
-        'keywords': ['function', 'var', 'let', 'const'],
-        'comments': ['//', '/*', '*/'],
-        'extensions': ['.js']
+    "JavaScript": {
+        "keywords": ["function", "var", "let", "const"],
+        "comments": ["//", "/*", "*/"],
+        "extensions": [".js"],
     },
-    'Java': {
-        'keywords': ['public', 'class', 'import', 'extends'],
-        'comments': ['//', '/*', '*/'],
-        'extensions': ['.java']
+    "Java": {
+        "keywords": ["public", "class", "import", "extends"],
+        "comments": ["//", "/*", "*/"],
+        "extensions": [".java"],
     },
-    'C++': {
-        'keywords': ['class', 'template', 'namespace', '#include'],
-        'comments': ['//', '/*', '*/'],
-        'extensions': ['.cpp', '.cc', '.cxx', '.h', '.hpp']
-    }
+    "C++": {
+        "keywords": ["class", "template", "namespace", "#include"],
+        "comments": ["//", "/*", "*/"],
+        "extensions": [".cpp", ".cc", ".cxx", ".h", ".hpp"],
+    },
 }
 
-def detect_language_with_features(filename=None,content=None):
+
+def detect_language_with_features(filename=None, content=None):
     if filename is not None:
         # 检查文件扩展名
         _, ext = os.path.splitext(filename)
         for lang, features in language_features.items():
-            if ext in features['extensions']:
+            if ext in features["extensions"]:
                 return lang
     if content is not None:
         # # 初始化一个字典来存储每个语言的关键字和注释出现次数
@@ -55,9 +57,9 @@ def detect_language_with_features(filename=None,content=None):
             return "Unknown"
 
 
-if __name__ == '__main__':
-    
+if __name__ == "__main__":
+
     # 示例用法
-    filename = 'example_file.java'
+    filename = "example_file.java"
     # with open(filename, 'r') as file:
-    print(detect_language_with_features(filename,None ))
+    print(detect_language_with_features(filename, None))

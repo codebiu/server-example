@@ -6,7 +6,7 @@ import sys, pathlib
 import time
 
 # from utils.dataBase.DataBaseNeo4j import GraphTraversal
-from utils.ast.AstPython import AstPython
+from utils.ast.ast_python import AstPython
 from utils.rag.graphRAG.prompt import AnalysisPrompt
 from utils.media.openai.OpenAIClient import OpenAIClient
 
@@ -116,18 +116,16 @@ class GraphRAG:
 
         # 聚合虚拟节点
 
-    async def describe(self):
+    async def describe_all(self):
         # 将结果转换为字典列表
-        # path = "D:\\test\\fastapi"
-        path = "D:\\test\\fastapi\\dependencies"
+        path = "D:\\test\\ocrweb_multi_fastapi"
+        # path = "D:\\test\\fastapi\\dependencies"
         records = self.db.match_query(
             self.cypterObj["get_node_by_path"],
             {"path": path},
         )
         #
         describe_all = await self.describe_node(records[0])
-        # """
-        a = 1
 
     async def describe_node(self, node_root):
         """从根节点广度处理每一层数据describe向上汇总"""
@@ -165,6 +163,7 @@ class GraphRAG:
                     AnalysisPrompt.get_prompt_user_class(obj, child_describes)
                 )
             elif label == "File":
+                # file_path = obj["path"]
                 messages.append(
                     AnalysisPrompt.get_prompt_user_file(obj, child_describes)
                 )
@@ -211,6 +210,8 @@ class GraphRAG:
             self.num["folder"] += 1
         else:
             node_file = node
+            if not node['label'].endswith('.py'):
+                return
             # 文件处理
             self.db.cypher_query(
                 self.cypterObj["relation_folder_file"],
@@ -275,23 +276,17 @@ class GraphRAG:
 
     async def create(self):
         start_time = time.time()
-        # self._clear()
-        # print("重置数据库", time.time() - start_time)
-        # self._file_tree()
-        # self._graph_file()
-        await self.describe()
+        self._clear()
+        print("重置数据库", time.time() - start_time)
+        self._file_tree()
+        self._graph_file()
+        await self.describe_all()
 
-
-async def task_fuc(name):
-    print(f'Task {name} started at {time.strftime("%X")}')
-    await asyncio.sleep(1)  # 模拟耗时一秒的操作
-    print(f'Task {name} finished at {time.strftime("%X")}')
 
 
 if __name__ == "__main__":
     # 引入路径
     import sys, pathlib
-
     [
         sys.path.append(str(pathlib.Path(__file__).resolve().parents[i]))
         for i in range(4)
@@ -307,8 +302,8 @@ if __name__ == "__main__":
         start_time = time.time()
         print("db连接", time.time() - start_time)
         start_time = time.time()
-        project = r"D:\test\fastapi"
-        project_name = "fastapi"
+        project = r"D:\test\ocrweb_multi_fastapi"
+        project_name = "ocrweb_multi_fastapi"
         # 获取图数据库
         neo4j = conf["database"]["neo4j"]
         host = neo4j["host"]
@@ -319,8 +314,8 @@ if __name__ == "__main__":
         db = DataBaseNeo4j(user, password, host, port, database)
 
         # 获取ai_api
-        # openai_set = conf["ai"]["openai"]
-        openai_set = conf["ai"]["aihubmix"]
+        openai_set = conf["ai"]["openai"]
+        # openai_set = conf["ai"]["aihubmix"]
         client = OpenAIClient(
             api_key=openai_set["api_key"],
             chat_url=openai_set["chat_url"],

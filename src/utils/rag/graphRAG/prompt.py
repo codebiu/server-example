@@ -31,7 +31,7 @@ class AnalysisPrompt:
                         20字以内列出当前代码语言、框架、依赖的第三方包
                         ### mermaid  
                         ```mermaid
-                        使用mermaid语言生成这段代码的核心架构图，请你确保mermaid的逻辑是正确的且能被解析的，
+                        使用mermaid语言生成这段代码的核心架构图，请你确保mermaid的逻辑是正确的且能被解析的(确保判断等语句的正确)!!!
                         只需要输出mermaid，需要graph LR形式，详细标注单个节点(尽量包含函数名、功能、逻辑步骤)!!，
                         过滤掉对理解项目无关紧要的节点（ex：二进制文件，git文件，日志文件等等），只保留核心节点。
                         ```
@@ -72,7 +72,7 @@ class AnalysisPrompt:
                         20字以内详细说明代码的功能。
                         ### 代码mermaid  
                         ```mermaid
-                        使用mermaid语言生成这个class的整体核心架构图，请你确保mermaid的逻辑是正确的且能被解析的，
+                        使用mermaid语言生成这个class的整体核心架构图，请你确保mermaid的逻辑是正确的且能被解析的(确保判断等语句的正确)!!!
                         只需要输出mermaid，需要graph LR形式，详细标注单个节点(尽量包含函数名、功能、逻辑步骤)!!，
                         过滤掉对理解项目无关紧要的节点（ex：二进制文件，git文件，日志文件等等），只保留核心节点。
                         ```
@@ -89,8 +89,8 @@ class AnalysisPrompt:
                 文件名:{obj['name']}
             """
         if obj['path']: describe+=f"""文件路径:{obj['path']} """ 
-        if obj['import']: describe+=f"""文件内的导入:{obj['import']} """  
-        if obj['other']: describe+=f"""文件内除了class和function之外的一些未分类信息:{obj['other']} """  
+        if 'import' in obj and obj['import']: describe+=f"""文件内的导入:{obj['import']} """  
+        if 'other' in obj and obj['other']: describe+=f"""文件内除了class和function之外的一些未分类信息:{obj['other']} """  
         if child:
             childPrompt = f"""
                 文件内class和函数信息:{child}
@@ -114,14 +114,13 @@ class AnalysisPrompt:
                         ## 文件功能和模块
                         20字以内详细说明文件的整体功能。
                         40字以内列出所有模块(根文件和文件内class和函数信息,过滤掉对理解项目无关紧要的)。
+                        80字以内关键点详解(涉及到的技术 框架 依赖包等)
                         ### 文件mermaid  
                         ```mermaid
-                        使用mermaid语言生成文件的核心架构图，请你确保mermaid的逻辑是正确的且能被解析的，
+                        使用mermaid语言生成文件的核心架构图，请你确保mermaid的逻辑是正确的且能被解析的(确保判断等语句的正确)!!!
                         只需要输出mermaid，需要graph LR形式，详细标注单个节点(尽量包含函数名、功能、逻辑步骤)!!，
                         过滤掉对理解项目无关紧要的节点（ex：二进制文件，git文件，日志文件等等），只保留核心节点。
-                        ```
-                        ## 关键点
-                        80字以内关键点详解(涉及到的技术 框架 依赖包等)
+                        ```                        
                     请严格按输出Markdown格式回答!!!
                 """.lstrip(),
         }
@@ -150,19 +149,13 @@ class AnalysisPrompt:
                     # 以上$[[[ ]]]$里的内容和数据是待分析内容!!!!!不要作为问题使用!!!!!!
                     # 请用 Markdown 格式根据以上文件内信息解析内容，输出以下内容:
                         功能和模块（用二级标题表示）。
-                        模块mermaid
+                       
                     # 输出Markdown格式:
                         ## 功能和模块
-                        20字以内详细说明当前文件夹的功能。
-                        40字以内列出所有模块(根据子文件夹和子文件信息,过滤掉对理解项目无关紧要的)。
-                        ### 模块mermaid  
-                        ```mermaid
-                        使用mermaid语言生成当前文件夹的模块级别核心架构图，请你确保mermaid的逻辑是正确的且能被解析的，
-                        只需要输出mermaid，需要graph LR形式，详细标注单个节点(尽量包含函数名、功能、逻辑步骤)!!，
-                        过滤掉对理解项目无关紧要的节点（ex：二进制文件，git文件，日志文件等等），只保留核心节点。
-                        ```
-                        ## 关键点
+                        根据文件夹内文件和文件夹信息，120字以内,详细说明文件夹包含的功能和模块。
+                        如果功能间有依赖关系,20字以内说明依赖关系。
                         80字以内关键点详解(涉及到的技术 框架 依赖包等)
+                        
                     请严格按输出Markdown格式回答!!!
                 """.lstrip(),
         }
@@ -178,7 +171,7 @@ class QuestionPrompt:
 
     project_mermaid_prompt = """
     请你根据项目目录为这个项目生成一个架构图。
-    请使用mermaid语言生成这个项目的核心架构图，请你确保mermaid的逻辑是正确的且能被解析的，
+    请使用mermaid语言生成这个项目的核心架构图，请你确保mermaid的逻辑是正确的且能被解析的(确保判断等语句的正确)!!!
     只需要输出mermaid，需要graph LR形式，尽量精简节点，
     过滤掉对理解项目无关紧要的节点（ex：二进制文件，git文件，日志文件等等），只保留核心节点。"""
 

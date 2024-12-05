@@ -47,6 +47,8 @@ pip install pyjwt
 pip install passlib[bcrypt]
 # 测试
 pip install pytest
+# tree-sitter 语法树
+ pip install tree-sitter-javascript tree-sitter-java tree-sitter-python
 # full server
 pip3 install uvicorn fastapi sqlmodel python-multipart aiosqlite aiofiles pyyaml neo4j kuzu pyjwt passlib[bcrypt]
 # 导出

@@ -4,6 +4,7 @@
 *.log
 # python
 **/__pycache__
+**.pyc
 dist
 build
 uploaded_files
