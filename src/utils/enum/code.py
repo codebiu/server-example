@@ -7,6 +7,7 @@ class CodeType(Enum):
     java = auto()
     javascript = auto()
     html = auto()
+    markdown = auto()
 
 
 # LANGUAGES = [ "python", "java", "bash", "c", "c_sharp", "commonlisp", "cpp", "css",
