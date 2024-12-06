@@ -6,7 +6,9 @@ class AstPython:
     """ast分析代码"""
 
     def __init__(self):
-        self.parser = Parser(Language(tspython.language()))
+        a =tspython.language()
+        language = Language(a)
+        self.parser = Parser(language)
 
     def chunk(self, text: str, MAX_CHARS: int = 1500) -> list[str]:
         text_bytes = bytes(text, "utf-8")

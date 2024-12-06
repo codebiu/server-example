@@ -5,7 +5,10 @@ from enum import Enum, auto
 class CodeType(Enum):
     python = auto()
     java = auto()
+    cpp = auto()
+    c_sharp = auto()
     javascript = auto()
+    dart = auto()
     html = auto()
     markdown = auto()
 
