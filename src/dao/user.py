@@ -9,7 +9,7 @@ from do.user import User,UserCreate, UserLogin, UserPublic
 class UserDao:
 
     @DataNoCommit
-    async def add(user: UserCreate, session=AsyncSession) -> str:
+    async def add(user: User, session=AsyncSession) -> str:
         """插入一个新的用户  无需显式调用 session.commit()，因为装饰器已经处理了"""
         db_user = User.model_validate(user)
         session.add(db_user)
@@ -39,10 +39,11 @@ class UserDao:
         return await session.get(User, id)
     
     @DataNoCommit
-    async def select_by_email(email: str, session=AsyncSession) -> UserLogin | None:
-        query = select(UserLogin).where(UserLogin.email == email)
+    async def select_by_email(email: str, session=AsyncSession) -> User | None:
+        query = select(User).where(User.email == email)
         result = await session.exec(query)
-        return result.scalars().first()
+        user = result.first()  # 直接使用 .first() 获取第一个结果或 None
+        return user
 
     @DataNoCommit
     async def list(session=AsyncSession) -> list[User]:

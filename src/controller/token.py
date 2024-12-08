@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from do.token import Token
+from do.user import UserCreate
 from service.token import TokenService
 
 # to get a string like this run:
@@ -19,6 +20,19 @@ from service.token import TokenService
 
 
 router = APIRouter()
+
+# # 验证邮箱
+# @router.post("/verify_email", summary="post 验证邮箱")
+# async def verify_email(token: str):
+#     """验证邮箱   todo网易"""
+#     return await TokenService.verify_email(token)
+
+# 注册
+@router.post("/register", summary="post 注册")
+async def register(user: UserCreate)->str:
+    """注册"""
+    return await TokenService.register(user)
+
 
 
 @router.post("/", summary="post 获取访问令牌")
@@ -42,6 +56,8 @@ async def login_for_access_token(
 #     current_user: Annotated[User, Depends(get_current_active_user)],
 # ):
 #     return current_user
+
+
 
 
 app.include_router(router, prefix="/token", tags=["验证"])

@@ -19,24 +19,28 @@ class User(UserBase, table=True):
     created_at: datetime = Field(default=datetime.now())
     update_at: datetime | None = None
     # pwd
-    p: str | None = None
+    pwd: str | None = None
 
 
 class UserUpdate(UserBase):
     id: str
     # pwd
-    p: str | None = None
+    pwd: str | None = None
     update_at: datetime = Field(default=datetime.now())
 
 
-class UserCreate(UserBase):
-    pass
+
 
 
 class UserPublic:
     id: str
+# BaseModel
+class UserCreate(BaseModel):
+    email: str
+    pwd: str | None = None
     
-class UserLogin(SQLModel):
+    
+class UserLogin(BaseModel):
     """用于验证用户名和密码的模型"""
     email: str
-    password: str
+    pwd: str

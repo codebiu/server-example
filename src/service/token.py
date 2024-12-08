@@ -3,16 +3,37 @@ from fastapi import HTTPException, Request
 from do.user import User,UserCreate
 from dao.user import UserDao
 from config.fastapi_config import token_util
+from service.user import UsersService,User
 # lib
 from passlib.context import CryptContext
 
-from service.user import UsersService
+
+import hashlib
 
 # bcrypt加密  盐值加密,每一个盐值加密后的密码都不一样
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # pwd_context.hash(password)
 
 class TokenService:
+    """注册"""
+    @staticmethod
+    async def register(user: UserCreate)->str:
+        """创建用户"""
+        # Email重复
+        if await UsersService.select_by_email(user.email):
+            raise HTTPException(status_code=400, detail="Email already registered")
+        # 密码加密存入
+        user_add = User()
+        user_add.email = user.email
+        # 默认 name
+        # 使用SHA-256哈希算法，然后转换为十六进制格式
+        hash_object = hashlib.sha256(user.email.encode())
+        hex_dig = hash_object.hexdigest()
+        user_add.name ='new user ' + hex_dig[:6]  # 返回前length个字符
+        user_add.pwd = pwd_context.hash(user.pwd)
+        return await UsersService.add(user_add)
+    
+    
     """token  用邮箱验证"""
     @staticmethod
     async def create_access_token(email:str,password:str):
