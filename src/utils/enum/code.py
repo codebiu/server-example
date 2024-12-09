@@ -3,14 +3,15 @@ from enum import Enum, auto
 
 # class syntax
 class CodeType(Enum):
-    python = auto()
-    java = auto()
-    cpp = auto()
-    c_sharp = auto()
-    javascript = auto()
-    dart = auto()
-    html = auto()
-    markdown = auto()
+    python = "python"
+    java = "java"
+    cpp = "cpp"
+    javascript = "javascript"
+    rust = "rust"
+    html = "html"
+    markdown = "markdown"
+    dart = "dart"
+    c_sharp = "c-sharp"
 
 
 # LANGUAGES = [ "python", "java", "bash", "c", "c_sharp", "commonlisp", "cpp", "css",
