@@ -12,4 +12,6 @@ conf = yaml.safe_load(config_yaml.read_text(encoding="utf-8"))
 conf_new = conf["state"]["config_path"]
 if conf_new is not None:
     config_yaml = path_base / conf_new
-    conf = yaml.safe_load(config_yaml.read_text(encoding="utf-8"))
+    # 判断有没有
+    if config_yaml.exists():
+        conf = yaml.safe_load(config_yaml.read_text(encoding="utf-8"))

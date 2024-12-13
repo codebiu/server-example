@@ -1,14 +1,25 @@
-import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Node
 
+from enum_code import CodeType
 
-class AstPython:
+from tree_sitter_codes import TreeSitterCodes
+
+
+class TreeSitterJavaType:
+    import_type = "import_declaration"
+    class_type = "class_declaration"
+    class_super_type = "superclass"
+    fuc_type = "method_declaration"
+    fuc_params_type = "formal_parameters"
+    call_type = "method_invocation"
+
+
+class AstJava:
     """ast分析代码"""
 
     def __init__(self):
-        a =tspython.language()
-        language = Language(a)
-        self.parser = Parser(language)
+        tree_sitter_languages = TreeSitterCodes("tree-sitter", "tree-sitter")
+        self.parser = tree_sitter_languages.get_parser(CodeType.java)
 
     def chunk(self, text: str, MAX_CHARS: int = 1500) -> list[str]:
         text_bytes = bytes(text, "utf-8")
@@ -31,10 +42,10 @@ class AstPython:
             ],
             "other": [],
         }
-        code_tree = self.chunk_node(code_tree, tree.root_node, text_bytes, MAX_CHARS)
+        code_tree = self._chunk_node(code_tree, tree.root_node, text_bytes, MAX_CHARS)
         return code_tree
 
-    def chunk_node(
+    def _chunk_node(
         self, code_tree, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500
     ):
         """
@@ -55,34 +66,28 @@ class AstPython:
             # 节点类型
             type_code = child.type
 
-            if type_code == "import_statement":
+            if type_code == TreeSitterJavaType.import_type:
                 # TODO 解析导入 考虑三方库和本地实现
                 # node_current["code"] = text_bytes[child.start_byte : child.end_byte].decode('utf-8')
                 code_tree["import"].append(
                     text_bytes[child.start_byte : child.end_byte].decode("utf-8")
                 )
 
-            elif type_code == "import_from_statement":
-                # node_current["code"] = text_bytes[child.start_byte : child.end_byte].decode('utf-8')
-                code_tree["import"].append(
-                    text_bytes[child.start_byte : child.end_byte].decode("utf-8")
-                )
-
-            elif type_code == "class_definition":
-                node_current = self.chunk_node_class(child, text_bytes)
+            elif type_code == TreeSitterJavaType.class_type:
+                node_current = self._chunk_node_class(child, text_bytes)
                 code_tree["class"].append(node_current)
             # 装饰器 todo
             elif type_code == "decorated_definition":
-                self.chunk_node(code_tree, child, text_bytes, MAX_CHARS)
-            elif type_code == "function_definition":
-                node_current = self.chunk_node_fuc(child, text_bytes)
+                self._chunk_node(code_tree, child, text_bytes, MAX_CHARS)
+            elif type_code == TreeSitterJavaType.fuc_type:
+                node_current = self._chunk_node_fuc(child, text_bytes)
                 code_tree["function"].append(node_current)
             else:
                 # 未考虑到的放在一起
-                self.chunk_node_other(code_tree,child,text_bytes)
+                self._chunk_node_other(code_tree, child, text_bytes)
         return code_tree
 
-    def chunk_node_class(self, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500):
+    def _chunk_node_class(self, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500):
         """解析class节点"""
         node_current = {
             "name": "",
@@ -107,23 +112,23 @@ class AstPython:
                 node_current["argument_list"] = text_bytes[
                     child.start_byte + 1 : child.end_byte - 1
                 ].decode("utf-8")
-            elif child.type == "block":
+            elif child.type == "class_body":
                 for child_child in child.children:
                     if child_child.type == "expression_statement":
                         # 处理类内变量和注释
-                        self.chunk_node_expression_statement(
+                        self._chunk_node_expression_statement(
                             node_current,
                             child_child,
                             text_bytes,
                         )
-                    if child_child.type == "function_definition":
-                        node_child_current = self.chunk_node_fuc(
+                    if child_child.type == TreeSitterJavaType.fuc_type:
+                        node_child_current = self._chunk_node_fuc(
                             child_child, text_bytes
                         )
                         node_current["function"].append(node_child_current)
         return node_current
 
-    def chunk_node_fuc(self, node: Node, text_bytes: bytes):
+    def _chunk_node_fuc(self, node: Node, text_bytes: bytes):
         """解析function节点"""
         code = text_bytes[node.start_byte : node.end_byte].decode("utf-8")
         size = len(code)
@@ -142,43 +147,45 @@ class AstPython:
                     fuc_child.start_byte : fuc_child.end_byte
                 ].decode("utf-8")
                 # 参数  实现接口
-            elif fuc_child.type == "parameters":
+            elif fuc_child.type == TreeSitterJavaType.fuc_params_type:
                 node_current["parameters"] = text_bytes[
                     fuc_child.start_byte + 1 : fuc_child.end_byte - 1
                 ].decode("utf-8")
-            elif fuc_child.type == "type":
+            elif fuc_child.type == "void_type" or fuc_child.type == "type_identifier":
                 node_current["return_type"] = text_bytes[
                     fuc_child.start_byte : fuc_child.end_byte
                 ].decode("utf-8")
             elif fuc_child.type == "block":
-                call_child = self.chunk_node_call(fuc_child, text_bytes)
+                call_child = self._chunk_node_call(fuc_child, text_bytes)
                 node_current["call"] = node_current["call"] | call_child
         # 所有调用函数
         node_current["call"] = list(node_current["call"])
         return node_current
 
-    def chunk_node_call(self, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500):
+    def _chunk_node_call(self, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500):
         """递归节点下所有调用函数"""
         call = set()
         for child in node.children:
-            if child.type == "call":
-                for call_child in child.children:
-                    # 带类函数
-                    if (
-                        call_child.type == "attribute"
-                        or call_child.type == "identifier"
-                    ):
-                        fuc_name = text_bytes[
+            if child.type == TreeSitterJavaType.call_type:
+                i = 0
+                 # 带类函数
+                fuc_name = ""
+                while i < child.child_count:
+                    call_child = child.child(i)
+                    if call_child.type in ['field_access',"identifier", "."]:
+                       fuc_name += text_bytes[
                             call_child.start_byte : call_child.end_byte
-                        ].decode("utf-8")
-                        call.add(fuc_name)
+                        ].decode("utf-8")                
+                    i += 1
+                if fuc_name:
+                    call.add(fuc_name)
             else:
-                call_child = self.chunk_node_call(child, text_bytes)
+                call_child = self._chunk_node_call(child, text_bytes)
                 # 合并
                 call = call | call_child
         return call
 
-    def chunk_node_expression_statement(
+    def _chunk_node_expression_statement(
         self, node_expression_statement, node: Node, text_bytes: bytes
     ):
         """解析expression_statement节点"""
@@ -193,10 +200,13 @@ class AstPython:
                     text_bytes[child.start_byte : child.end_byte].decode("utf-8")
                 )
 
+    def _chunk_node_other(
+        self, code_tree, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500
+    ):
+        code_tree["other"].append(
+            text_bytes[node.start_byte : node.end_byte].decode("utf-8")
+        )
 
-    def chunk_node_other(self,code_tree, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500):
-        code_tree["other"].append(text_bytes[ node.start_byte : node.end_byte ].decode("utf-8"))
-        
     def chunk_simple(
         self,
         text_bytes: bytes,
@@ -227,7 +237,7 @@ class AstPython:
             start_line += chunk_size - overlap
             return chunks
 
-    # def chunk_node(self, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500) -> list[str]:
+    # def _chunk_node(self, node: Node, text_bytes: bytes, MAX_CHARS: int = 1500) -> list[str]:
     #     """
     #     将给定的树节点（Node）表示的文本分割成多个不超过指定最大字符数的块。
 
@@ -246,7 +256,7 @@ class AstPython:
     #         if child.end_byte - child.start_byte > MAX_CHARS:
     #             new_chunks.append(current_chunk)
     #             current_chunk = ""
-    #             new_chunks.extend(self.chunk_node(child, text_bytes, MAX_CHARS))
+    #             new_chunks.extend(self._chunk_node(child, text_bytes, MAX_CHARS))
     #         # 下一个子节点太大，我们递归地对子节点进行 chunk 并将其添加到 chunk 列表中
     #         elif len(current_chunk) + child.end_byte - child.start_byte > MAX_CHARS:
     #             new_chunks.append(current_chunk)
@@ -261,11 +271,12 @@ if __name__ == "__main__":
     import time
 
     # 创建分割器
-    chunker = AstPython()
+    chunker = AstJava()
     start_time = time.time()
 
     # 读取python文件到字符串
-    with open(r"D:\test\fastapi\routing.py", "r", encoding="utf-8") as f:
+    # with open(r"D:\test\fastapi\routing.py", "r", encoding="utf-8") as f:
+    with open(r"test-data\text\test.java", "r", encoding="utf-8") as f:
         text_bytes = f.read()
         print(time.time() - start_time)
         start_time = time.time()

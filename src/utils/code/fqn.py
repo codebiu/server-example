@@ -3,7 +3,7 @@ from tree_sitter import Language, Parser, Node
 
 parser =Parser(Language(tspython.language()))
 
-
+# TODO 全变量名
 def get_fqn(node, scope=[]):
     if node.type == 'function_definition' or node.type == 'class_definition':
         name_node = next(n for n in node.children if n.type == 'identifier')
