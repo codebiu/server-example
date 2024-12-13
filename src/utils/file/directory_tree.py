@@ -148,32 +148,6 @@ class DirectoryTree:
             node_parent["size"] += node_this["size"]
         return list_all
 
-    # def build_directory_list_root(root_path):
-    #     list = []
-    #     size = 0
-    #     root_path = Path(root_path)
-    #     # 当前文件夹节点
-    #     node_this = {"label": root_path.name, "path": str(root_path), "type": "Folder"}
-    #     list.append(node_this)
-    #     for item in root_path.iterdir():
-    #         size_new = 0
-    #         if item.is_dir():
-    #             lsit_new, size_new = DirectoryTree.build_directory_list_root(item)
-    #             list.extend(lsit_new)
-    #         else:
-    #             list_node_stat = item.stat()
-    #             size_new = list_node_stat.st_size
-    #             node_file = {
-    #                 "label": item.name,
-    #                 "path": str(item),
-    #                 "type": "File",
-    #                 "size": size_new,
-    #             }
-    #             list.append(node_file)
-    #         size += size_new
-    #     node_this["size"] = size
-    #     return list,size
-
 
 if __name__ == "__main__":
     # current_dir = Path.cwd()  # 获取当前工作目录
