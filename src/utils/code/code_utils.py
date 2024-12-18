@@ -1,26 +1,33 @@
-import os
+from pathlib import Path
 from pygments.lexers import guess_lexer
 from pygments.util import ClassNotFound
+
+from utils.enum.code import CodeType
 
 
 # 定义一些常见的编程语言及其特征
 language_features = {
-    "Python": {
+    CodeType.python: {
         "keywords": ["def", "class", "import", "from"],
         "comments": ["#"],
         "extensions": [".py"],
     },
-    "JavaScript": {
+    CodeType.dart: {
+        "keywords": ["void", "class", "import", "extends"],
+        "comments": ["//", "/*", "*/"],
+        "extensions": [".dart"],
+    },
+    CodeType.javascript: {
         "keywords": ["function", "var", "let", "const"],
         "comments": ["//", "/*", "*/"],
         "extensions": [".js"],
     },
-    "Java": {
+    CodeType.java: {
         "keywords": ["public", "class", "import", "extends"],
         "comments": ["//", "/*", "*/"],
         "extensions": [".java"],
     },
-    "C++": {
+    CodeType.cpp: {
         "keywords": ["class", "template", "namespace", "#include"],
         "comments": ["//", "/*", "*/"],
         "extensions": [".cpp", ".cc", ".cxx", ".h", ".hpp"],
@@ -30,8 +37,10 @@ language_features = {
 
 def detect_language_with_features(filename=None, content=None):
     if filename is not None:
-        # 检查文件扩展名
-        _, ext = os.path.splitext(filename)
+        # 使用 pathlib 获取文件扩展名
+        file_path = Path(filename)
+        # .suffix 返回文件的扩展名，包括点号 ('.py', '.txt', 等等)
+        ext = file_path.suffix
         for lang, features in language_features.items():
             if ext in features["extensions"]:
                 return lang

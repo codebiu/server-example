@@ -28,8 +28,10 @@ class LspPythonPyright:
         # 初始化请求参数
         initialize_params = {
             "processId": None,
-            "rootUri": rootUri,
-            "capabilities": {},  # 语言服务器的能力，可以根据需要扩展
+            # "rootPath": rootUri,
+            # 'workspaceFolders': rootUri,
+            "workspaceFolders": [{"uri": rootUri, "name": "utils"}] , # 提供工作空间文件夹
+            "capabilities": {},
         }
         # 发送初始化请求
         await self.send_request("initialize", initialize_params, str(uuid.uuid4()))
