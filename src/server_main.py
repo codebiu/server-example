@@ -5,7 +5,7 @@ from config.index import conf
 
 # import config
 from config import db, fastapi_config, path, log, index
-from controller import index, user, utils, ws, test0,dict,token
+from controller import index, server_state, user, utils, ws, dict,token
 
 # lib
 console.log("......基础依赖全部引入完成")

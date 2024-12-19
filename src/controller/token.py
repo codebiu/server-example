@@ -31,12 +31,13 @@ router = APIRouter()
 @router.post("/register", summary="post 注册")
 async def register(user: UserCreate)->str:
     """注册"""
+    # 邮箱
     return await TokenService.register(user)
 
 
 
-@router.post("/", summary="post 获取访问令牌")
-async def login_for_access_token(
+@router.post("/email", summary="post 获取访问令牌")
+async def login_for_access_token_by_email(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Token:
     """
@@ -44,6 +45,22 @@ async def login_for_access_token(
     :param form_data: 包含用户名和密码的表单数据。
     :return: 包含访问令牌和令牌类型的响应。
     """
+    # username可以是email 或者username或tel
+    encoded_jwt =await TokenService.create_access_token(
+        form_data.username, form_data.password
+    )
+    token = Token(access_token=encoded_jwt, token_type="Bearer")
+    return token
+@router.post("/tel", summary="post 获取访问令牌")
+async def login_for_access_token_by_tel(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+) -> Token:
+    """
+    首次登陆，账户密码获取访问令牌。
+    :param form_data: 包含用户名和密码的表单数据。
+    :return: 包含访问令牌和令牌类型的响应。
+    """
+    # username可以是email 或者username或tel
     encoded_jwt =await TokenService.create_access_token(
         form_data.username, form_data.password
     )

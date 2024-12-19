@@ -1,9 +1,10 @@
 # self
 from fastapi import HTTPException, Request
-from do.user import User,UserCreate
+from do.user import User, UserCreate
 from dao.user import UserDao
 from config.fastapi_config import token_util
-from service.user import UsersService,User
+from service.user import UsersService, User
+
 # lib
 from passlib.context import CryptContext
 
@@ -12,16 +13,19 @@ import hashlib
 
 # bcrypt加密  盐值加密,每一个盐值加密后的密码都不一样
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-# pwd_context.hash(password)
 
 class TokenService:
     """注册"""
+
     @staticmethod
-    async def register(user: UserCreate)->str:
-        """创建用户"""
+    async def register(user: UserCreate) -> str:
+        """
+        使用email创建用户
+        取hash内容前6个字符作为name标识：new user 123456
+        """
         # Email重复
         if await UsersService.select_by_email(user.email):
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(status_code=400, detail="email registered")
         # 密码加密存入
         user_add = User()
         user_add.email = user.email
@@ -29,22 +33,20 @@ class TokenService:
         # 使用SHA-256哈希算法，然后转换为十六进制格式
         hash_object = hashlib.sha256(user.email.encode())
         hex_dig = hash_object.hexdigest()
-        user_add.name ='new user ' + hex_dig[:6]  # 返回前length个字符
+        user_add.name = "new user " + hex_dig[:6]  # 返回前length个字符
         user_add.pwd = pwd_context.hash(user.pwd)
         return await UsersService.add(user_add)
-    
-    
-    """token  用邮箱验证"""
+
     @staticmethod
-    async def create_access_token(email:str,password:str):
-        """生成token"""
-        user =await TokenService.authenticate_user(email, password)
+    async def create_access_token(email: str, password: str):
+        """生成token 用邮箱验证"""
+        user = await TokenService.authenticate_user(email, password)
         if not user:
             raise HTTPException(
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        data={"sub": email}
+        data = {"sub": email}
         encoded_jwt = token_util.data2token(data)
         return encoded_jwt
 
@@ -52,18 +54,16 @@ class TokenService:
     async def authenticate_user(email: str, password: str):
         """
         验证用户身份。
-
         :param fake_db: 模拟的用户数据库。
         :param username: 用户名。
         :param password: 明文密码。
         :return: 如果验证成功，返回用户对象；否则返回 False。
         """
-        user =await UsersService.select_by_email(email)
+        user = await UsersService.select_by_email(email)
         # 验证明文密码是否与已哈希的密码匹配
         if not user or not pwd_context.verify(password, user.password):
             return False
         return user
-
 
     # async def get_current_user(request: Request):
     #     """
@@ -88,8 +88,6 @@ class TokenService:
     #     return user
 
 
-
-    
 # fake_users_db = {
 #     "johndoe": {
 #         "username": "johndoe",
@@ -100,7 +98,6 @@ class TokenService:
 #         "disabled": False,
 #     }
 # }
-
 
 
 # class TokenData(BaseModel):
