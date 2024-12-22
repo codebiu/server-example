@@ -26,6 +26,9 @@ class UsersService:
     @staticmethod
     async def select_by_email(email: str) -> User | None:
         return await UserDao.select_by_email(email)
+    @staticmethod
+    async def select_by_tel(tel: str) -> User | None:
+        return await UserDao.select_by_tel(tel)
     
     @staticmethod
     async def list() -> list[User]:

@@ -7,6 +7,7 @@ from datetime import datetime
 class UserBase(SQLModel):
     name: str
     email: str
+    tel: str
 
 
 class User(UserBase, table=True):
@@ -20,6 +21,7 @@ class User(UserBase, table=True):
     update_at: datetime | None = None
     # pwd
     pwd: str | None = None
+    disabled: bool = Field(default=False)
 
 
 class UserUpdate(UserBase):
@@ -29,18 +31,18 @@ class UserUpdate(UserBase):
     update_at: datetime = Field(default=datetime.now())
 
 
-
-
-
 class UserPublic:
     id: str
+
+
 # BaseModel
 class UserCreate(BaseModel):
     email: str
     pwd: str | None = None
-    
-    
+
+
 class UserLogin(BaseModel):
     """用于验证用户名和密码的模型"""
+
     email: str
     pwd: str

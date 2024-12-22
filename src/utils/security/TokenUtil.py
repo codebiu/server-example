@@ -3,31 +3,26 @@ from fastapi import HTTPException, Request
 import jwt
 from pydantic import BaseModel
 
+
 class TokenUtil:
     """
-        尽量减少直接通过 API 请求发送用户密码的情况。一旦用户成功登录并获得访问令牌，
-        后续请求可以使用这个令牌来进行身份验证，而不是每次都发送密码。
-        前后端传输不考虑加密，https更好，数据库可以考虑。
+    尽量减少直接通过 API 请求发送用户密码的情况。一旦用户成功登录并获得访问令牌，
+    后续请求可以使用这个令牌来进行身份验证，而不是每次都发送密码。
+    前后端传输不考虑加密，https更好，数据库可以考虑。
     """
 
-    def __init__(
-        self,
-        secret,
-        algorithm,
-        expire
-    ):
+    def __init__(self, secret, algorithm, expire):
         """
-            初始化 TokenUtil 实例。
-            :param secret: 用于签名的密钥。
-            :param algorithm: 用于签名的算法。
-            :param expire: 令牌的过期时间（分钟）。
+        初始化 TokenUtil 实例。
+        :param secret: 用于签名的密钥。
+        :param algorithm: 用于签名的算法。
+        :param expire: 令牌的过期时间（分钟）。
         """
         self.SECRET_KEY = secret
         self.ALGORITHM = algorithm
         self.EXPIRE_MINUTES = timedelta(minutes=expire)
         # 加密 密码加密 Header和Payload部分分别进行Base64Url编码成消息字符串。
         # 使用指定的算法（例如HMAC SHA256）和密钥对消息字符串进行签名
-
 
     def data2token(self, data: dict) -> str:
         """
@@ -89,7 +84,7 @@ class TokenUtil:
         """
         try:
             # 验证旧的 JWT 令牌
-            old_data = self.token2data(old_request)
+            old_data = self.token_request2data(old_request)
             # 生成新的 JWT 令牌
             new_token = self.data2token(old_data)
             return new_token
@@ -102,23 +97,29 @@ if __name__ == "__main__":
 
     import time
 
-    token_util = TokenUtil()
+    # 加密算法
+    algorithm = "HS256"
+    # 加密密钥
+    secret = "1111111"
+    # 加密过期时间miniutes
+    expire = 30
+    token_util: TokenUtil = TokenUtil(secret, algorithm, expire)
 
     # 创建 JWT
     data = {"sub": "test123"}
-    token = token_util.data2token(data)
-    print(f"Generated Token: {token}")
+    encoded_jwt = token_util.data2token(data)
+    print(f"Generated encoded_jwt: {encoded_jwt}")
 
     # 解码 JWT
     from fastapi import Request
     from starlette.requests import Request as StarletteRequest
 
     class MockRequest(StarletteRequest):
-        headers = {"Authorization": f"Bearer {token.access_token}"}
+        headers = {"Authorization": f"Bearer {encoded_jwt}"}
 
     mock_request = MockRequest(scope={"type": "http"})
     try:
-        decoded_data = token_util.token2data(mock_request)
+        decoded_data = token_util.token_request2data(mock_request)
         print(f"Decoded Data: {decoded_data}")
     except HTTPException as e:
         print(f"Error: {e.detail}")
@@ -126,10 +127,10 @@ if __name__ == "__main__":
     # 更新 JWT
     try:
         time.sleep(1)  # 等待一段时间以使令牌更新依赖时间戳不一致
-        new_token = token_util.update_token(mock_request)
-        print(f"Updated Token: {new_token}")
+        encoded_jwt_new = token_util.update_token(mock_request)
+        print(f"Updated Token: {encoded_jwt_new}")
 
-        print(f"token是否一致: {token.access_token == new_token.access_token}")
+        print(f"token是否一致: {encoded_jwt == encoded_jwt_new}")
     except HTTPException as e:
         print(f"Error: {e.detail}")
 

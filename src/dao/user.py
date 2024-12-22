@@ -44,6 +44,13 @@ class UserDao:
         result = await session.exec(query)
         user = result.first()  # 直接使用 .first() 获取第一个结果或 None
         return user
+    
+    @DataNoCommit
+    async def select_by_tel(tel: str, session=AsyncSession) -> User | None:
+        query = select(User).where(User.tel == tel)
+        result = await session.exec(query)
+        user = result.first()  # 直接使用 .first() 获取第一个结果或 None
+        return user
 
     @DataNoCommit
     async def list(session=AsyncSession) -> list[User]:

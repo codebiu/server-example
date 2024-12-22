@@ -80,7 +80,7 @@ where.exe python # windows
   "configurations": [
     {
       "name": "Python: FastAPI",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
       "args": [
