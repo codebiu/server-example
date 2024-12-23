@@ -15,6 +15,7 @@ import hashlib
 # bcrypt加密  盐值加密,每一个盐值加密后的密码都不一样
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 class TokenService:
     """注册"""
 
@@ -40,10 +41,10 @@ class TokenService:
         return await UsersService.add(user_add)
 
     @staticmethod
-    async def create_token(tokenType:TokenType,value: str, password: str):
+    async def create_token(tokenType: TokenType, value: str, password: str):
         """生成token 用邮箱验证"""
-        user = await TokenService.get_user(tokenType,value, password)
-          # 验证明文密码是否与已哈希的密码匹配
+        user: User = await TokenService.get_user(tokenType, value, password)
+        # 验证明文密码是否与已哈希的密码匹配
         if not user or not pwd_context.verify(password, user.pwd):
             return False
         if not user:
@@ -51,13 +52,12 @@ class TokenService:
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        data:dict[TokenType,str] = {"type":tokenType,"value": value}
+        data: dict[TokenType, str] = {"sub": user.id}
         encoded_jwt = token_util.data2token(data)
         return encoded_jwt
-    
 
     @staticmethod
-    async def get_user(type:TokenType,value: str):
+    async def get_user(type: TokenType, value: str) -> User:
         """
         验证用户身份。
         :param fake_db: 模拟的用户数据库。
@@ -77,7 +77,6 @@ class TokenService:
             raise HTTPException(status_code=400, detail="type error")
         return user
 
-
     async def get_current_user(request: Request):
         """
         获取当前用户信息。
@@ -86,14 +85,13 @@ class TokenService:
         :return: 当前用户对象。
         :raises HTTPException: 如果无法验证凭据或用户不存在。
         """
+        # decode 解码token内容
         try:
-            # decode 解码token内容
-            payload:dict[TokenType,str] = token_util.token_request2data(request)
-            tokenType: str = payload.get("tokenType")
-            value: str = payload.get("value")
-            if tokenType is None or value is None:
-                raise HTTPException(status_code=400, detail="token error,no tokenType or value")
-            user = await TokenService.get_user(tokenType,value)
+            payload: dict[TokenType, str] = token_util.token_request2data(request)
+            id: str = payload.get("sub")
+            user = await UsersService.select(id)
+        except Exception as e:
+            return("token_request2data error:", str(e))       
         if not user:
             raise HTTPException(status_code=400, detail="token error")
         # 激活 封禁
@@ -101,34 +99,3 @@ class TokenService:
             raise HTTPException(status_code=400, detail="Inactive user")
         return user
 
-
-# fake_users_db = {
-#     "johndoe": {
-#         "username": "johndoe",
-#         "full_name": "John Doe",
-#         "email": "johndoe@example.com",
-#         # 明文 secret
-#         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-#         "disabled": False,
-#     }
-# }
-
-
-# class TokenData(BaseModel):
-#     username: str | None = None
-
-
-# class User(BaseModel):
-#     username: str
-#     email: str | None = None
-#     full_name: str | None = None
-#     disabled: bool | None = None
-
-
-# class UserInDB(User):
-#     hashed_password: str
-
-# def get_user(db, username: str):
-#     if username in db:
-#         user_dict = db[username]
-#         return UserInDB(**user_dict)

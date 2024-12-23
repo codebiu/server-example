@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, Request
 import jwt
-from pydantic import BaseModel
+# from pydantic import BaseModel
 
 
 class TokenUtil:
