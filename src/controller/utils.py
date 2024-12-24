@@ -1,7 +1,7 @@
 import json
 from fastapi import File, UploadFile, APIRouter
 from config.fastapi_config import app
-from service.fileService import fileService
+from service.file import fileService
 
 router = APIRouter()
 

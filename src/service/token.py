@@ -80,7 +80,6 @@ class TokenService:
     async def get_current_user(request: Request):
         """
         获取当前用户信息。
-
         :param token: Bearer 令牌。
         :return: 当前用户对象。
         :raises HTTPException: 如果无法验证凭据或用户不存在。
@@ -91,9 +90,10 @@ class TokenService:
             id: str = payload.get("sub")
             user = await UsersService.select(id)
         except Exception as e:
-            return("token_request2data error:", str(e))       
+            info = str(e)
+            raise HTTPException(status_code=400, detail="token error{info}")     
         if not user:
-            raise HTTPException(status_code=400, detail="token error")
+            raise HTTPException(status_code=400, detail="token not find")
         # 激活 封禁
         if user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")

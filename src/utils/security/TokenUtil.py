@@ -57,7 +57,7 @@ class TokenUtil:
         if token_type != "Bearer":
             raise HTTPException(status_code=401, detail="无效的Token")
         try:
-            # 解码 JWT
+            # 解码 JWT  保证不被篡改
             data_decoded = jwt.decode(
                 token, self.SECRET_KEY, algorithms=[self.ALGORITHM]
             )
