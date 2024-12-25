@@ -4,7 +4,7 @@ from do.token import TokenType
 from do.user import User, UserCreate
 from dao.user import UserDao
 from config.fastapi_config import token_util
-from service.user import UsersService, User
+from service.user import UserService, User
 
 # lib
 from passlib.context import CryptContext
@@ -26,7 +26,7 @@ class TokenService:
         取hash内容前6个字符作为name标识：new user 123456
         """
         # Email重复
-        if await UsersService.select_by_email(user.email):
+        if await UserService.select_by_email(user.email):
             raise HTTPException(status_code=400, detail="email registered")
         # 密码加密存入
         user_add = User()
@@ -38,7 +38,7 @@ class TokenService:
         user_add.name = "new user " + hex_dig[:6]  # 返回前length个字符
         # 加密密码
         user_add.pwd = pwd_context.hash(user.pwd)
-        return await UsersService.add(user_add)
+        return await UserService.add(user_add)
 
     @staticmethod
     async def create_token(tokenType: TokenType, value: str, password: str):
@@ -66,11 +66,11 @@ class TokenService:
         :return: 如果验证成功，返回用户对象；否则返回 False。
         """
         if type == TokenType.email:
-            user = await UsersService.select_by_email(value)
+            user = await UserService.select_by_email(value)
         elif type == TokenType.tel:
-            user = await UsersService.select_by_tel(value)
+            user = await UserService.select_by_tel(value)
         elif type == TokenType.out_token:
-            # user = await UsersService.select_by_tel(value)
+            # user = await UserService.select_by_tel(value)
             # TODO 外部token验证  邮箱  谷歌账号  微信扫码  手机号
             pass
         else:
@@ -88,7 +88,7 @@ class TokenService:
         try:
             payload: dict[TokenType, str] = token_util.token_request2data(request)
             id: str = payload.get("sub")
-            user = await UsersService.select(id)
+            user = await UserService.select(id)
         except Exception as e:
             info = str(e)
             raise HTTPException(status_code=400, detail="token error{info}")     

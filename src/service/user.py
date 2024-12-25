@@ -5,7 +5,7 @@ from dao.user import UserDao
 # lib
 
 
-class UsersService:
+class UserService:
     """user"""
 
     @staticmethod
