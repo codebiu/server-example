@@ -2,23 +2,30 @@
     fastapi 基础配置
     fastapi base config
 """
+
 # self
 from config.log import console
 from utils.dataBase.DataBaseSqlite import DataBaseSqlite
+from config.path import path_base
+from config.index import conf
+
 # lib
 from functools import wraps
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 
-SQLALCHEMY_DATABASE_URL = "source/db/base.db"
-
+database = conf["database"]
+# ###################################关系数据库#############################
+# sqlite路径
+sqlite = database["sqlite"]
+SQLALCHEMY_DATABASE_URL = sqlite["path"]
 dataBaseSqliteDeafault = DataBaseSqlite(SQLALCHEMY_DATABASE_URL)
 dataBaseSqliteDeafault.connect()
 # 当前数据引擎
 engine: AsyncEngine = dataBaseSqliteDeafault.engine
 sessionLocalUse = dataBaseSqliteDeafault.sessionLocal
 
-# ###################################关系数据库#############################
+
 def Data(f):
     """装饰器_负责创建执行和关闭"""
 
@@ -62,4 +69,4 @@ def DataNoCommit(f):
 
 # 管理器
 
-console.log("...数据库配置完成")
+console.log("...关系数据库配置完成")

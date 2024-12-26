@@ -3,9 +3,9 @@ import re
 class SimpleTemplateEngine:
     def render(template_str, context):
         """
-        渲染模板，将 context 中的键替换到模板中
-        :param context: 一个字典，包含模板变量名及其对应的值
-        :return: 渲染后的字符串
+            渲染模板，$key -> context[key]
+            context: 一个字典，包含模板变量名key及其对应的值 context[key]
+            return: 渲染后的字符串 
         """
         # 匹配以 $ 开头的占位符，如 $name
         pattern = r"\$(\w+)"
