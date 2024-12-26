@@ -9,7 +9,7 @@ from config.index import conf
 from utils.file.directory_tree import DirectoryTree
 from utils.file.file_utils import FileUtils
 
-files_path = str(conf["files_path"])
+files_path = conf["files_path"]
 
 
 class fileService:

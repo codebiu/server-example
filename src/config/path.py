@@ -15,13 +15,10 @@ def app_path() -> Path:
         path_base = current_script_path.parent.parent.parent
     return path_base
 
-
 # 目录根路径
 path_base = app_path()
 print("path_base", path_base)
 
-# log config path 日志配置路径
-path_config = path_base / "source" / "config" / "logging.ini"
 
 
 

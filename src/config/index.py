@@ -1,4 +1,5 @@
 # self
+from pathlib import Path
 from config.path import path_base
 # lib
 import yaml
@@ -15,3 +16,6 @@ if conf_new is not None:
     # 判断有没有
     if config_yaml.exists():
         conf = yaml.safe_load(config_yaml.read_text(encoding="utf-8"))
+        
+# 常用配置
+files_path = Path(conf["files_path"]) # 文件路径
