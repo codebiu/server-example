@@ -1,72 +1,59 @@
 """
-    fastapi 基础配置
-    fastapi base config
+    FastAPI 基础配置
+    FastAPI Base Config
 """
 
-# self
+# 第三方库导入
+from functools import wraps
+from typing import Callable, Any, Coroutine
+
+# 项目模块导入
 from config.log import console
 from utils.dataBase.DataBaseSqlite import DataBaseSqlite
-from config.path import path_base
 from config.index import conf
 
-# lib
-from functools import wraps
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
+# ################################### 关系型数据库配置 #############################
 
+# 数据库配置获取
+database_config = conf["database"]["sqlite"]
+SQLALCHEMY_DATABASE_URL = database_config["path"]
 
-database = conf["database"]
-# ###################################关系数据库#############################
-# sqlite路径
-sqlite = database["sqlite"]
-SQLALCHEMY_DATABASE_URL = sqlite["path"]
-dataBaseSqliteDeafault = DataBaseSqlite(SQLALCHEMY_DATABASE_URL)
-dataBaseSqliteDeafault.connect()
-# 当前数据引擎
-engine: AsyncEngine = dataBaseSqliteDeafault.engine
-sessionLocalUse = dataBaseSqliteDeafault.sessionLocal
+# 初始化SQLite数据库连接
+database_sqlite_default = DataBaseSqlite(SQLALCHEMY_DATABASE_URL)
+database_sqlite_default.connect()
 
+# 数据库引擎与会话工厂
+engine = database_sqlite_default.engine
+session_factory = database_sqlite_default.sessionLocal
 
-def Data(f):
-    """装饰器_负责创建执行和关闭"""
+console.log("...关系型数据库配置完成")
 
-    @wraps(f)
-    async def wrapper(*args, **kwargs):
-        try:
-            # 创建一个配置过的Session类
-            async with sessionLocalUse() as session:  # 确保 session 总是被关闭
-                # 设置session类型
-                kwargs["session"] = session  # 将 session 作为关键字参数传递给 f
-                result = await f(*args, **kwargs)
-                await session.commit()  # 提交事务
-                return result
-        except Exception as e:
-            # console.exception("数据库问题:"+str(e.orig))
-            console.error("数据库问题:" + str(e))
-            raise e
+# ################################### 数据库会话装饰器 #############################
 
-    return wrapper
+def db_session(commit: bool = True) -> Callable[[Callable], Callable[[Any], Coroutine]]:
+    """
+    数据库会话装饰器工厂
+    :param commit: 是否自动提交事务
+    """
+    def decorator(func: Callable) -> Callable[[Any], Coroutine]:
+        @wraps(func)
+        async def wrapper(*args, **kwargs) -> Any:
+            async with session_factory() as session:
+                try:
+                    kwargs["session"] = session
+                    result = await func(*args, **kwargs)
+                    if commit:
+                        await session.commit()
+                        console.debug("事务已提交")
+                    return result
+                except Exception as e:
+                    console.error(f"数据库操作异常: {str(e)}")
+                    await session.rollback()
+                    console.debug("事务已回滚")
+                    raise
+        return wrapper
+    return decorator
 
-
-def DataNoCommit(f):
-    """装饰器_负责创建执行和关闭"""
-
-    @wraps(f)
-    async def wrapper(*args, **kwargs):
-        try:
-            # 创建一个配置过的Session类
-            async with sessionLocalUse() as session:  # 确保 session 总是被关闭
-                # 设置session类型
-                kwargs["session"] = session  # 将 session 作为关键字参数传递给 f
-                result = await f(*args, **kwargs)
-                return result
-        except Exception as e:
-            # console.exception("数据库问题:"+str(e.orig))
-            console.error("数据库问题:" + str(e))
-            raise e
-
-    return wrapper
-
-
-# 管理器
-
-console.log("...关系数据库配置完成")
+# 快捷装饰器定义
+Data = db_session(commit=True)
+DataNoCommit = db_session(commit=False)

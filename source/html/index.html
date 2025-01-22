@@ -1,18 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>当前工程介绍</title>
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(145deg, #f0f0f0, #d9d9d9); /* 背景渐变 */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 容器样式 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2), -10px -10px 20px rgba(255, 255, 255, 0.7); /* 浮雕阴影 */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 头部样式 */
+        header {
+            background: linear-gradient(145deg, #4CAF50, #45a049); /* 渐变背景 */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.7); /* 浮雕阴影 */
+        }
+
+        header img {
+            height: 50px; /* 根据Logo大小调整 */
+            margin-right: 15px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3)); /* Logo阴影 */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* 文字阴影 */
+        }
+
+        /* 内容区域样式 */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .content h2 {
+            color: #003803;
+            margin-top: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 文字阴影 */
+        }
+
+        .content ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+
+        .content ul li {
+            margin-bottom: 10px;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1), -3px -3px 6px rgba(255, 255, 255, 0.7); /* 浮雕阴影 */
+        }
+
+        /* 页脚样式 */
+        footer {
+            background: linear-gradient(145deg, #333, #2a2a2a); /* 渐变背景 */
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.7); /* 浮雕阴影 */
+        }
+
+        footer p {
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* 文字阴影 */
+        }
+    </style>
     <link rel="icon" href="assets/img/ion/favicon.ico">
 </head>
 <body>
-    <!-- test -->
-    <div>server_main测试</div>
-    <!-- assets/img/ion/favicon.ico -->
-    <img src="assets/img/ion/favicon.ico" alt="">
-    <!-- script -->
-    <script src="assets/js/index.js"></script>
 
+<div class="container">
+    <!-- 头部，包含Logo -->
+    <header>
+        <img src="assets/img/ion/favicon.ico" alt="工程Logo"> <!-- 替换为你的Logo路径 -->
+        <h1>server_main测试</h1>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <section>
+            <h2>工程概述</h2>
+            <p>欢迎来到当前工程介绍页面。本工程旨在开发一个高效、可靠的系统，用于解决特定领域的问题。以下是工程的详细信息。</p>
+        </section>
+
+        <section>
+            <h2>工程目标</h2>
+            <ul>
+                <li>提高系统的性能和稳定性。</li>
+                <li>优化用户体验，提供直观的界面。</li>
+                <li>实现模块化设计，便于后续扩展和维护。</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>技术栈</h2>
+            <p>本工程采用了以下技术栈：</p>
+            <ul>
+                <li>前端：HTML5, CSS3, JavaScript</li>
+                <li>后端：fastapi  sqlmodel</li>
+                <li>数据库：sqlite kuzu</li>
+                <li>版本控制：Git</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>团队成员</h2>
+            <p>我们的团队由以下成员组成：</p>
+            <ul>
+                <li>前端开发：itild</li>
+                <li>后端开发：itild</li>
+                <li>UI设计：itild</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>联系方式</h2>
+            <p>如果您对本工程有任何疑问或建议，欢迎通过以下方式联系我们：</p>
+            <ul>
+                <li>邮箱：geolifestudy@gmail.com</li>
+                <li>电话：123-456-7890</li>
+            </ul>
+        </section>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 Current Project Team. All rights reserved.</p>
+    </footer>
+</div>
+<!-- script -->
+<script src="assets/js/index.js"></script>
 </body>
 </html>
