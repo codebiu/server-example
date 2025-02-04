@@ -11,7 +11,7 @@ from fastapi import APIRouter, status
 router = APIRouter()
 
 @router.post("/", status_code=status.HTTP_201_CREATED, summary="添加用户返回id")
-async def add(user: UserCreate) -> str:
+async def add(user: User) -> str:
     return await UserService.add(user)
 
 
@@ -35,9 +35,3 @@ async def list() -> list[User]:
     return await UserService.list()
 
 app.include_router(router, prefix="/user", tags=["用户"])
-
-
-# try:
-# 调用函数
-# except Exception as e:
-#     raise HTTPException(status_code=500, detail=e)
