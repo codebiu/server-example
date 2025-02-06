@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 # 加载 ONNX 模型
-model_path = 'source/img/test/model.onnx'
+model_path = 'test-data/model.onnx'
 session = ort.InferenceSession(model_path)
 
 
@@ -95,7 +95,7 @@ def draw_boxes(image, detections):
 if __name__ == "__main__":
     def main():
         # 图片路径
-        image_path = 'source/img/test/code_person_car_l.png'
+        image_path = 'test-data/img/code_person_car_l.png'
         
         # 读取图片
         original_image = cv2.imread(image_path)

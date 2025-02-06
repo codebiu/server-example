@@ -45,7 +45,7 @@ def inference_onnx(model_path, input_data):
     
 if __name__ == "__main__":
     # 模型输出和加载
-    path_model = "source/test/linear_regression_fixed.onnx"
+    path_model = "test-data/ai_model/linear_regression_fixed.onnx"
     
     #训练
     # X, y = train_data()

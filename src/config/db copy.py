@@ -6,7 +6,6 @@
 # self
 from config.log import console
 from utils.dataBase.DataBaseSqlite import DataBaseSqlite
-from config.path import path_base
 from config.index import conf
 
 # lib

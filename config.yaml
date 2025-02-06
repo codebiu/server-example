@@ -3,9 +3,10 @@ state:
 server:
   host: 0.0.0.0
   port: 2665
-# files_path: uploaded_files
-files_path: D:\a_source\test
-log: logging.ini
+files_path: 
+  uploaded: D:\a_source\test\uploaded
+  log: D:\a_source\test\log
+  temp: D:\a_source\test\temp
 # 加密key jwt
 security:
   # 加密算法

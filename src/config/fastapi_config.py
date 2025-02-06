@@ -8,7 +8,7 @@ from typing import Union
 
 from pydantic import BaseModel
 from config.log import console
-from config.path import path_base
+from config.path import project_path_base
 from config.index import conf
 
 # lib
@@ -78,7 +78,7 @@ def dealToken(request: Request, response: Response):
 
 ############################### 静态首页 ##############################################
 # html path 当前ip端口html路径
-path_html = path_base / "source" / "html"
+path_html = project_path_base / "source" / "html"
 html_file = open(path_html / "index.html", "r", encoding="utf-8").read()
 
 
