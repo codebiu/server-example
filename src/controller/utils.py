@@ -21,6 +21,7 @@ def upload_file(dir: str):
 async def upload_file(file: str):
     return await fileService.open_file(file)
 
+
 @router.get("/open_stream", summary="分片流式获取文件")
 async def upload_file(file: str):
     return await fileService.open_file_stream(file)

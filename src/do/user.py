@@ -5,9 +5,9 @@ from datetime import datetime
 
 
 class UserBase(SQLModel):
-    name:  str | None = None
+    name: str | None = None
     email: str
-    tel:  str | None = None
+    tel: str | None = None
 
 
 class User(UserBase, table=True):

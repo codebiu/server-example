@@ -38,21 +38,33 @@ def db_session(commit: bool = True) -> Callable[[Callable], Callable[[Any], Coro
     def decorator(func: Callable) -> Callable[[Any], Coroutine]:
         @wraps(func)
         async def wrapper(*args, **kwargs) -> Any:
-            async with session_factory() as session:
-                try:
+            # 方便多事务统一处理 只有在没有传递 session 时才可以提交事务
+            session = kwargs.get("session", None)
+            should_commit = commit and session is None  
+            if session is None:
+                async with session_factory() as session:
                     kwargs["session"] = session
-                    result = await func(*args, **kwargs)
-                    if commit:
-                        await session.commit()
-                        console.debug("事务已提交")
-                    return result
-                except Exception as e:
-                    console.error(f"数据库操作异常: {str(e)}")
-                    await session.rollback()
-                    console.debug("事务已回滚")
-                    raise
+                    return await _execute_with_session(func, session, should_commit, *args, **kwargs)
+            else:
+                return await _execute_with_session(func, session, should_commit, *args, **kwargs)
         return wrapper
     return decorator
+
+async def _execute_with_session(func: Callable, session: Any, should_commit: bool, *args, **kwargs) -> Any:
+    """
+    执行函数并处理事务提交或回滚
+    """
+    try:
+        result = await func(*args, **kwargs)
+        if should_commit:
+            await session.commit()
+            logger.debug("事务已提交")
+        return result
+    except Exception as e:
+        logger.error(f"数据库操作异常: {str(e)}")
+        await session.rollback()
+        logger.debug("事务已回滚")
+        raise
 
 # 快捷装饰器定义
 Data = db_session(commit=True)

@@ -2,8 +2,14 @@ from pathlib import Path
 from uuid import uuid4
 
 from utils.code.file.file_io import FileIO
-from utils.code.str.code_translate import snake_to_camel
-from utils.generate.simple_template_engine import SimpleTemplateEngine
+from utils.code.str.code_translate import (
+    snake_to_camel_first_lower,
+    snake_to_camel_first_capital,
+)
+from utils.generate.simple_template_engine import (
+    SimpleTemplateEngine,
+    SimpleTemplateEngineFull,
+)
 from utils.zip.zip_util import zip_full_path
 from config.path import files_path_generate, project_path_base
 
@@ -17,6 +23,8 @@ class CodebiuGenerate:
 
     def __init__(self, name_snake):
         self.name_snake = name_snake
+        self.name_camel_first_lower = snake_to_camel_first_lower(self.name_snake)
+        self.name_camel_first_capital = snake_to_camel_first_capital(self.name_snake)
         # 生成代码文件夹 新资源地址和压缩
         self.BASE_PATH = Path(files_path_generate) / name_snake
         self.OUTPUT_DIR = uuid4().hex
@@ -26,34 +34,61 @@ class CodebiuGenerate:
         self.output_path = self.BASE_PATH / self.OUTPUT_DIR
         self.output_zip_path = self.BASE_PATH / self.OUTPUT_ZIP
 
-    def create_domain(
+    def create(self, dir_name, context):
+        """生成do"""
+        file_name_temolate = dir_name + ".sh"
+        path_controller_tmplate_in = path_generate / file_name_temolate
+        template = FileIO.read(path_controller_tmplate_in)
+       
+        # content = SimpleTemplateEngine.render(template, context)
+        content = SimpleTemplateEngineFull.render(template, context)
+        # 写入文件
+        file_name_snake = self.name_snake + ".py"
+        path_controller_out = self.output_path / dir_name / file_name_snake
+        FileIO.write(path_controller_out, content)
+    def get_context(self):
+        """生成do"""
+        context = {
+            "template_name": self.name_snake,
+            "templateName": self.name_camel_first_lower,
+            "TemplateName": self.name_camel_first_capital,
+        }
+        return context
+    def get_context_domain(
         self,
-        do_db=[
+        db_fields_list=[
             {"name": "key", "type": "str"},
             {"name": "value", "type": "str"},
         ],
     ):
         """生成do"""
-        return
+        db_fields_str = ""
+        for db_field in db_fields_list:
+            db_field_name = db_field.get("name")
+            db_field_type = db_field.get("type")
+            db_fields_str += f"    {db_field_name}: {db_field_type}\n"
 
-    def create(self, dir_name="controller"):
-        """生成do"""
-        name_camel = snake_to_camel(self.name_snake)
-        # 打开文件
-        # controller
-        file_name_temolate = dir_name + ".sh"
-        path_controller_tmplate_in = path_generate / file_name_temolate
-        template = FileIO.read(path_controller_tmplate_in)
-        # 生成代码文件夹
-        context = {"template": self.name_snake, "Template": name_camel}
-        content = SimpleTemplateEngine.render(template, context)
-        # 写入文件
-        file_name_snake = self.name_snake + ".py"
-        path_controller_out = self.output_path / dir_name / file_name_snake
-        FileIO.write(path_controller_out, content)
+        context = {
+            "template_name": self.name_snake,
+            "templateName": self.name_camel_first_lower,
+            "TemplateName": self.name_camel_first_capital,
+            "DBFields": db_fields_str,
+        }
+        return context
 
     def create_all(self):
-        self.create("controller")
+         # 生成代码文件夹
+        context = self.get_context()
+        self.create("controller",context)
+        self.create("service",context)
+        self.create("dao",context)
+        # domain
+        db_fields_list = [
+            {"name": "key", "type": "str"},
+            {"name": "value", "type": "str"},
+        ]
+        context_domain = self.get_context_domain(db_fields_list)
+        self.create("do",context_domain)
         # # 压缩
         zip_full_path(self.output_zip_path, [self.output_path])
 

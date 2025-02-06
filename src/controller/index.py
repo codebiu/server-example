@@ -7,9 +7,6 @@ from service.index import TableService
 # lib
 from fastapi import APIRouter, status
 
-
-
-
 # 基础db
 router = APIRouter()
 
