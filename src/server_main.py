@@ -4,10 +4,8 @@ from config.fastapi_config import app
 from config.index import conf
 
 # import config
-from config import db, fastapi_config, path, log, index
-# from controller import index, server_state, user, utils, ws, dict,token
+from config import *
 from controller import *
-# from config import *
 # lib
 logger.debug("......基础依赖全部引入完成")
 
