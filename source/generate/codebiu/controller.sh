@@ -1,5 +1,5 @@
 # self
-# from config.log import console
+# from config.log import logger
 from config.fastapi_config import app
 from service.template import TemplateService
 from do.template import Template, TemplateCreate

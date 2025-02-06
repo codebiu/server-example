@@ -1,14 +1,19 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
+from pathlib import Path
 
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
-    def __init__(self, filename_pattern, when, interval, backupCount, custom_function=None):
+    def __init__(self, filename_pattern:Path, when, interval, backupCount, custom_function=None):
+         # 将 filename_pattern 转换为字符串（兼容 Path 对象）
+        filename_str = str(filename_pattern)
         # 使用当前时间格式化文件名作为初始文件名
-        initial_filename = datetime.now().strftime(filename_pattern)
+        initial_filename = datetime.now().strftime(filename_str)
+        # 没有就创建
+        Path(initial_filename).parent.mkdir(parents=True, exist_ok=True)
         super().__init__(initial_filename, when, interval, backupCount)
         
-        self.filename_pattern = filename_pattern  # 保存文件名模板
+        self.filename_pattern = filename_str  # 保存为字符串
         self.custom_function = custom_function  # 保存外部传入的函数
 
     def doRollover(self):

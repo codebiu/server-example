@@ -7,7 +7,7 @@
 from typing import Union
 
 from pydantic import BaseModel
-from config.log import console
+from config.log import logger
 from config.path import project_path_base
 from config.index import conf
 
@@ -85,7 +85,7 @@ html_file = open(path_html / "index.html", "r", encoding="utf-8").read()
 # 首页 app非router挂载
 @app.get("/", response_class=HTMLResponse, summary="server首页html", tags=["base set"])
 async def server():
-    console.log("初始首页html")
+    logger.debug("初始首页html")
     return html_file
 
 
@@ -107,4 +107,4 @@ async def custom_swagger_ui_html():
     )
 
 
-console.log("...server服务配置完成")
+logger.debug("...server服务配置完成")

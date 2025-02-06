@@ -8,7 +8,7 @@ from functools import wraps
 from typing import Callable, Any, Coroutine
 
 # 项目模块导入
-from config.log import console
+from config.log import logger
 from utils.dataBase.DataBaseSqlite import DataBaseSqlite
 from config.index import conf
 
@@ -26,7 +26,7 @@ database_sqlite_default.connect()
 engine = database_sqlite_default.engine
 session_factory = database_sqlite_default.sessionLocal
 
-console.log("...关系型数据库配置完成")
+logger.debug("...关系型数据库配置完成")
 
 # ################################### 数据库会话装饰器 #############################
 

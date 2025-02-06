@@ -6,7 +6,7 @@ from config.fastapi_config import app
 from fastapi import APIRouter, status
 
 # self
-from config.log import console
+from config.log import logger
 from config.fastapi_config import app
 
 router = APIRouter()

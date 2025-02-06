@@ -5,7 +5,7 @@ import aiofiles
 
 from fastapi.responses import HTMLResponse
 
-from config.log import console
+from config.log import logger
 router = APIRouter()
 
 html = """
@@ -76,7 +76,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 # 将数据写入文件
                 await output_file.write(data)
-                console.log('输出数据到文件中...')
+                logger.debug('输出数据到文件中...')
                 
     except Exception as e:
         print("WebSocket connection error:", str(e))

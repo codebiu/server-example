@@ -1,4 +1,4 @@
-from config.log import console
+from config.log import logger
 from config.db import engine
 from sqlmodel import SQLModel
 
@@ -14,4 +14,4 @@ class BaseDao:
     def test():
         return ''
 
-console.log('...基础sql配置完成')
+logger.debug('...基础sql配置完成')

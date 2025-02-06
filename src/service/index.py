@@ -1,5 +1,5 @@
 # self
-from config.log import console
+from config.log import logger
 from config.fastapi_config import app
 from dao.index import TableDao
 # lib
@@ -9,7 +9,7 @@ class TableService:
     # 更新数据库 静态方法
     @staticmethod
     async def create():
-        console.log('test')
+        logger.debug('test')
         try:
             # 调用函数
             await TableDao.create()

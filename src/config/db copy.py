@@ -4,7 +4,7 @@
 """
 
 # self
-from config.log import console
+from config.log import logger
 from utils.dataBase.DataBaseSqlite import DataBaseSqlite
 from config.index import conf
 
@@ -68,4 +68,4 @@ def DataNoCommit(f):
 
 # 管理器
 
-console.log("...关系数据库配置完成")
+logger.debug("...关系数据库配置完成")
