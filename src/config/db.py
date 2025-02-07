@@ -26,7 +26,7 @@ database_sqlite_default.connect()
 engine = database_sqlite_default.engine
 session_factory = database_sqlite_default.sessionLocal
 
-logger.debug("...关系型数据库配置完成")
+logger.info("ok...关系型数据库配置")
 
 # ################################### 数据库会话装饰器 #############################
 
@@ -58,12 +58,12 @@ async def _execute_with_session(func: Callable, session: Any, should_commit: boo
         result = await func(*args, **kwargs)
         if should_commit:
             await session.commit()
-            logger.debug("事务已提交")
+            logger.info("事务已提交")
         return result
     except Exception as e:
         logger.error(f"数据库操作异常: {str(e)}")
         await session.rollback()
-        logger.debug("事务已回滚")
+        logger.info("事务已回滚")
         raise
 
 # 快捷装饰器定义

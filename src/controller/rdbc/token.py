@@ -1,16 +1,13 @@
 """ token controller"""
 
 # self
-from config.fastapi_config import app, token_util
+from config.server import app
 
 # lib
-from datetime import datetime, timedelta, timezone
-from typing import Annotated
 
-import jwt
-from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jwt.exceptions import InvalidTokenError
+from fastapi import APIRouter, Depends, Form
+from fastapi.security import OAuth2PasswordRequestForm
+
 from do.token import Token, TokenType
 from do.user import UserCreate
 from service.token import TokenService

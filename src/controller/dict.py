@@ -1,6 +1,6 @@
 # self
 # from config.log import logger
-from config.fastapi_config import app
+from config.server import app
 from service.dict import DictService
 from do.dict import Dict, DictCreate, DictUpdate
 from utils.dataBase.DBEX import DBExtention, DBExtentiontentionBase

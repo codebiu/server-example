@@ -1,6 +1,6 @@
 # self
 # from config.log import logger
-from config.fastapi_config import app
+from config.server import app
 from service.$template_name import $TemplateNameService
 from do.$template_name import $TemplateName, $TemplateNameCreate
 
@@ -10,7 +10,7 @@ from fastapi import APIRouter, status
 
 router = APIRouter()
 
-@router.post("/", status_code=status.HTTP_201_CREATED, summary="添加用户返回id")
+@router.post("/", status_code=status.HTTP_201_CREATED, summary="添加$template_name返回id")
 async def add($template_name: $TemplateName) -> str:
     return await $TemplateNameService.add($template_name)
 

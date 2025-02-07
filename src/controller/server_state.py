@@ -2,12 +2,12 @@
 import asyncio
 import threading
 import time
-from config.fastapi_config import app
+from config.server import app
 from fastapi import APIRouter, status
 
 # self
 from config.log import logger
-from config.fastapi_config import app
+from config.server import app
 
 router = APIRouter()
 

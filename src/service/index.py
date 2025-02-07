@@ -1,6 +1,5 @@
 # self
 from config.log import logger
-from config.fastapi_config import app
 from dao.index import TableDao
 # lib
 from fastapi import HTTPException
@@ -9,7 +8,7 @@ class TableService:
     # 更新数据库 静态方法
     @staticmethod
     async def create():
-        logger.debug('test')
+        logger.info('test')
         try:
             # 调用函数
             await TableDao.create()

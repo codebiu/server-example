@@ -14,4 +14,4 @@ class BaseDao:
     def test():
         return ''
 
-logger.debug('...基础sql配置完成')
+logger.info('ok...dao_index')

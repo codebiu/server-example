@@ -2,10 +2,9 @@ from pathlib import Path
 import aiofiles
 import mimetypes
 from fastapi import File, Response, UploadFile, APIRouter
-from config.fastapi_config import app
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 import shutil
-from config.path import files_path_uploaded
+from config.path import dir_uploaded
 from utils.file.directory_tree import DirectoryTree
 from utils.file.file_utils import FileUtils
 
@@ -17,7 +16,7 @@ class fileService:
 
     @staticmethod
     async def upload_file(
-        file_upload: UploadFile = File(...), upload_folder=files_path_uploaded
+        file_upload: UploadFile = File(...), upload_folder=dir_uploaded
     ):
         """上传文件"""
         try:
@@ -47,7 +46,7 @@ class fileService:
 
     # 根据路径获取目录树和文件信息
     @staticmethod
-    def get_directory_tree(file_path: str, upload_folder=files_path_uploaded):
+    def get_directory_tree(file_path: str, upload_folder=dir_uploaded):
         upload_folder = Path(upload_folder)
         # 实际存储路径
         current_dir = upload_folder / file_path
@@ -56,7 +55,7 @@ class fileService:
     
     # 根据路径获取单层目录树和文件信息
     @staticmethod
-    def get_dirFile_level_one(file_path: str, upload_folder=files_path_uploaded):
+    def get_dirFile_level_one(file_path: str, upload_folder=dir_uploaded):
         upload_folder = Path(upload_folder)
         # 实际存储路径
         current_dir = upload_folder / file_path
@@ -66,7 +65,7 @@ class fileService:
 
     # 根据路径流式打开文件获取内容
     @staticmethod
-    async def open_file_stream(filename: str, upload_folder=files_path_uploaded):
+    async def open_file_stream(filename: str, upload_folder=dir_uploaded):
         """打开文件"""
         upload_folder = Path(upload_folder)
         # 实际存储路径
@@ -97,7 +96,7 @@ class fileService:
 
     # 根据路径打开文件获取内容
     @staticmethod
-    async def open_file(filename: str, upload_folder=files_path_uploaded):
+    async def open_file(filename: str, upload_folder=dir_uploaded):
         """打开文件"""
         upload_folder = Path(upload_folder)
         # 实际存储路径

@@ -27,7 +27,8 @@ class ColoredConsoleHandler(logging.StreamHandler):
 #     # 将控制台处理器添加到日志器
 #     logger.addHandler(debug_handler)
 #     # 示例日志
-#     logger.debug("This is a debug message")
+#     logger.info('First message: %s, Second message: %s', '1', 2)
+#     logger.info("This is a debug message")
 #     logger.info("This is an info message")
 #     logger.warning("This is a warning message")
 #     logger.error("This is an error message")

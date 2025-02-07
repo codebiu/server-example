@@ -4,15 +4,15 @@ from config.index import conf,path_base
 
 project_path_base = path_base
 # 基础文件路径
-files_path = conf["files_path"]
-files_path_uploaded:str = files_path['uploaded']
-files_path_log:str = files_path['log']
-files_path_generate:str = files_path['generate']
-files_path_temp:str = files_path['temp']
+files_path_dict = conf["files_path"]
+dir_uploaded:str = files_path_dict['uploaded']
+dir_log:str = files_path_dict['log']
+dir_generate:str = files_path_dict['generate']
+dir_temp:str = files_path_dict['temp']
 
 
 # 没有就创建
-Path(files_path_uploaded).mkdir(parents=True, exist_ok=True)
-Path(files_path_log).mkdir(parents=True, exist_ok=True)
-Path(files_path_generate).mkdir(parents=True, exist_ok=True)
-Path(files_path_temp).mkdir(parents=True, exist_ok=True)
+Path(dir_uploaded).mkdir(parents=True, exist_ok=True)
+Path(dir_log).mkdir(parents=True, exist_ok=True)
+Path(dir_generate).mkdir(parents=True, exist_ok=True)
+Path(dir_temp).mkdir(parents=True, exist_ok=True)

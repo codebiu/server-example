@@ -3,7 +3,7 @@ from fastapi import HTTPException, Request
 from do.token import TokenType
 from do.user import User, UserCreate
 from dao.user import UserDao
-from config.fastapi_config import token_util
+from config.server import token_util
 from service.user import UserService, User
 
 # lib

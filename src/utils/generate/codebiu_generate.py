@@ -11,7 +11,7 @@ from utils.generate.simple_template_engine import (
     SimpleTemplateEngineFull,
 )
 from utils.zip.zip_util import zip_full_path
-from config.path import files_path_generate, project_path_base
+from config.path import dir_generate, project_path_base
 
 
 # 使用模版位置
@@ -26,7 +26,7 @@ class CodebiuGenerate:
         self.name_camel_first_lower = snake_to_camel_first_lower(self.name_snake)
         self.name_camel_first_capital = snake_to_camel_first_capital(self.name_snake)
         # 生成代码文件夹 新资源地址和压缩
-        self.BASE_PATH = Path(files_path_generate) / name_snake
+        self.BASE_PATH = Path(dir_generate) / name_snake
         self.OUTPUT_DIR = uuid4().hex
         self.OUTPUT_ZIP = f"{self.OUTPUT_DIR}.zip"
 
@@ -94,5 +94,5 @@ class CodebiuGenerate:
 
 
 if __name__ == "__main__":
-    codebiuGenerate = CodebiuGenerate("test_generate_this")
+    codebiuGenerate = CodebiuGenerate("generate_table")
     codebiuGenerate.create_all()

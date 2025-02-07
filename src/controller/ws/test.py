@@ -1,6 +1,6 @@
 import json
 from fastapi import WebSocket,APIRouter
-from config.fastapi_config import app
+from config.server import app
 import aiofiles
 
 from fastapi.responses import HTMLResponse
@@ -76,7 +76,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 # 将数据写入文件
                 await output_file.write(data)
-                logger.debug('输出数据到文件中...')
+                logger.info('输出数据到文件中...')
                 
     except Exception as e:
         print("WebSocket connection error:", str(e))

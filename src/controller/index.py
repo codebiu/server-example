@@ -1,7 +1,7 @@
 # self
 
 from config.log import logger
-from config.fastapi_config import app
+from config.server import app
 from service.index import TableService
 
 # lib
@@ -19,4 +19,4 @@ async def create():
 
 
 app.include_router(router, prefix="/db", tags=["db"])
-logger.debug("...controller index")
+logger.info("ok...controller_index")

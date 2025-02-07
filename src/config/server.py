@@ -85,7 +85,7 @@ html_file = open(path_html / "index.html", "r", encoding="utf-8").read()
 # 首页 app非router挂载
 @app.get("/", response_class=HTMLResponse, summary="server首页html", tags=["base set"])
 async def server():
-    logger.debug("初始首页html")
+    logger.info("初始首页html")
     return html_file
 
 
@@ -107,4 +107,4 @@ async def custom_swagger_ui_html():
     )
 
 
-logger.debug("...server服务配置完成")
+logger.info("ok...server服务配置")
