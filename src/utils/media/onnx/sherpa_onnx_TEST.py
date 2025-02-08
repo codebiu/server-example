@@ -1,4 +1,4 @@
-import ffmpeg
+import ffmpeg,wave
 import numpy as np
 import sherpa_onnx
 
@@ -23,14 +23,26 @@ if __name__ == "__main__":
         samples_float32 = samples_float32 / 32768  # 归一化到[-1, 1]
         
         # 获取采样率
-        probe = ffmpeg.probe(wave_filename, v='error', select_streams='a:0', show_entries='stream=sample_rate')
+        probe = ffmpeg.probe(wave_filename, v='error', select_streams='a:0', show_entries='s=sample_rate')
         sample_rate = int(probe['streams'][0]['sample_rate'])
         # 样本值 采样率
         return samples_float32, sample_rate
 
+    def read_wave(wave_filename: str):
+        with wave.open(wave_filename) as f:
+            assert f.getnchannels() == 1, f.getnchannels()
+            assert f.getsampwidth() == 2, f.getsampwidth()  # it is in bytes
+            num_samples = f.getnframes()
+            samples = f.readframes(num_samples)
+            samples_int16 = np.frombuffer(samples, dtype=np.int16)
+            samples_float32 = samples_int16.astype(np.float32)
+
+            samples_float32 = samples_float32 / 32768
+            return samples_float32, f.getframerate()
     # 加载Sherpa ONNX模型
     
     recognizer = sherpa_onnx.OnlineRecognizer.from_transducer(
+    # recognizer = sherpa_onnx.OfflineRecognizer.from_transducer(
 
         encoder=model_dir + "encoder-epoch-99-avg-1.onnx",  # 你的encoder模型路径
         decoder=model_dir + "decoder-epoch-99-avg-1.onnx",  # 你的解码器模型路径
@@ -46,17 +58,23 @@ if __name__ == "__main__":
     audio_path = (
         "test-data/ai_model/test.wav"  # 这里你可以使用任何音频格式（例如MP3、WAV等）
     )
-    samples_float32, sample_rate = read_audio_with_ffmpeg(audio_path)
+    # samples_float32, sample_rate = read_audio_with_ffmpeg(audio_path)
+    samples_float32, sample_rate = read_wave(audio_path)
 
    # 使用模型进行识别
-    stream = recognizer.create_stream()
+    s = recognizer.create_stream()
 
     # 将音频样本数据分批传入并进行实时识别
-    stream.accept_waveform(sample_rate,samples_float32)  # 传递音频数据
-    recognizer.decode_stream(stream)
-    
-    result = stream.get_result()  # 获取当前识别结果
-    
+    # s.accept_waveform(sample_rate,samples_float32)  # 传递音频数据
+    # recognizer.decode_stream(s)
+    s.accept_waveform(sample_rate, samples_float32)
+
+    # tail_paddings = np.zeros(int(0.66 * sample_rate), dtype=np.float32)
+    # s.accept_waveform(sample_rate, tail_paddings)
+    while recognizer.is_ready(s):
+            recognizer.decode_stream(s)
+    # 获取识别结果
+    result =recognizer.get_result(s)
 
     # 输出识别结果
     print("识别结果:", result)
