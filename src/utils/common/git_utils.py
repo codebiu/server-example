@@ -2,7 +2,10 @@ from pathlib import Path
 import subprocess
 
 def git_clone(repo: str, temp_dir: Path):
-    ''' Clones a git repository into a temporary directory'''
+    ''' 
+        Clones a git repository into a temporary directory \n
+        克隆一个git仓库到临时目录
+    '''
     try:
         print(f"Cloning {repo} into {temp_dir}")
         subprocess.run(["git", "clone", repo], cwd=temp_dir, check=True)
