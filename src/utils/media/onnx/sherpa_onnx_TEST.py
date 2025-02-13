@@ -5,6 +5,7 @@ import sherpa_onnx
 
 
 if __name__ == "__main__":
+    # https://k2-fsa.github.io/sherpa/onnx/pretrained_models/index.html
     from config.path import dir_temp
 
     model_dir = dir_temp + "\\model\\"

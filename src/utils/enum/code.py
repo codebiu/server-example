@@ -11,6 +11,7 @@ class CodeType(Enum):
     html = "html"
     markdown = "markdown"
     dart = "dart"
+    ruby = "ruby"
     c_sharp = "c-sharp"
 
 
