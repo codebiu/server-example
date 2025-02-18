@@ -46,8 +46,12 @@ app.add_middleware(
     # 设定浏览器缓存 CORS 响应的最长时间，单位是秒。默认为 600，一般也很少指定
     # max_age=1000
 )
-# gzip
-app.add_middleware(GZipMiddleware, minimum_size=1000)
+############################### middleware 中间件 ###############################
+
+middleware = conf.get("middleware")
+# 启用gzip
+if middleware.get("gzip"):
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 # 为app增加接口处理耗时的响应头信息
@@ -55,7 +59,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response: Response = await call_next(request)
-    dealToken(request, response)
+    await dealToken(request, response)
     # X- 作为前缀代表专有自定义请求头
     response.headers["X-Process-Time"] = str((time.time() - start_time) * 1000)
 
@@ -64,11 +68,11 @@ async def add_process_time_header(request: Request, call_next):
 
 ############################### token通用过滤 ##############################################
 
-security = conf["security"]
+security = conf.get("security")
 token_util: TokenUtil = TokenUtil(
     security["secret"], security["algorithm"], security["expire"]
 )
-def dealToken(request: Request, response: Response):
+async def dealToken(request: Request, response: Response):
     # 解析出数据
     # data = token_util.token2data(request)
 
