@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 
 # class syntax
-class CodeType(Enum):
+class CodeType(str, Enum):
     python = "python"
     java = "java"
     cpp = "cpp"
@@ -13,6 +13,9 @@ class CodeType(Enum):
     dart = "dart"
     ruby = "ruby"
     c_sharp = "c-sharp"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 # LANGUAGES = [ "python", "java", "bash", "c", "c_sharp", "commonlisp", "cpp", "css",
