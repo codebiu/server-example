@@ -86,14 +86,14 @@ if __name__ == "__main__":
 
     # 加载音频文件
     audio_path = (
-        "test-data/ai_model/test.wav"  # 这里你可以使用任何音频格式（例如MP3、WAV等）
+        "test-data/ai_model/output.wav"  # 这里你可以使用任何音频格式（例如MP3、WAV等）
     )
     
     start_time = time.time()
     # samples_float32, sample_rate = read_audio_with_ffmpeg(audio_path)
-    samples_float32, sample_rate = read_audio_with_ffmpeg_optimized(audio_path)
+    # samples_float32, sample_rate = read_audio_with_ffmpeg_optimized(audio_path)
     
-    # samples_float32, sample_rate = read_wave(audio_path)
+    samples_float32, sample_rate = read_wave(audio_path)
     print("test", time.time() - start_time)
    # 使用模型进行识别
     s = recognizer.create_stream()
