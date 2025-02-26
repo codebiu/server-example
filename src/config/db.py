@@ -9,7 +9,7 @@ from typing import Callable, Any, Coroutine
 
 # 项目模块导入
 from config.log import logger
-from utils.dataBase.DataBaseSqlite import DataBaseSqlite
+from common.utils.dataBase.DataBaseSqlite import DataBaseSqlite
 from config.index import conf
 
 # ################################### 关系型数据库配置 #############################

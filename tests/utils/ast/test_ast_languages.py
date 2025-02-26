@@ -1,10 +1,10 @@
 import sys, pathlib
 [sys.path.append(str(pathlib.Path(__file__).resolve().parents[i])) for i in range(4)]
-from utils.code.tree_sitter_codes import TreeSitterlanguages
+from common.utils.code.tree_sitter_codes import TreeSitterlanguages
 import pytest
 from enum import Enum, auto
 from tree_sitter import Tree, Parser
-from src.utils.enum.code import CodeType
+from src.common.utils.enum.code import CodeType
 
 
 

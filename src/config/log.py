@@ -6,9 +6,9 @@ from pathlib import Path
 # 使用basicConfig()来指定日志级别和相关信息
 from config.path import dir_log
 from config.index import conf
-from utils.enum.color import Color
-from utils.log.ColoredConsoleHandler import ColoredConsoleHandler
-from utils.log.CustomTimedRotatingFileHandler import CustomTimedRotatingFileHandler
+from common.utils.enum.color import Color
+from common.utils.log.ColoredConsoleHandler import ColoredConsoleHandler
+from common.utils.log.CustomTimedRotatingFileHandler import CustomTimedRotatingFileHandler
 
 """
     生成文件log和带颜色控制台log

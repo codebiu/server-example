@@ -2,7 +2,8 @@
 from config.log import logger
 from config.server import app
 from config.index import conf
-from controller import *
+# from module_main.controller import *
+from module_todo.controller import *
 # lib
 logger.info("ok...基础依赖全部")
 logger.info('%s%s', "server:http://127.0.0.1:", str(conf["server"]["port"]))

@@ -4,8 +4,8 @@ import sys, pathlib
 import pytest
 from enum import Enum, auto
 from tree_sitter import Tree, Parser
-from src.utils.enum.code import CodeType
-# from src.utils.ast.ast_languages import AstLanguages
+from src.common.utils.enum.code import CodeType
+# from src.common.utils.ast.ast_languages import AstLanguages
 
 
 # 假设这里包含了你的 AstLanguages 类的实现。
