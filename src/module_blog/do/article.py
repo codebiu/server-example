@@ -11,7 +11,7 @@ class Article(SQLModel, table=True):
     author_id: int = Field(foreign_key="user.id")
     author: User = Relationship(back_populates="articles")
     shared_users: List[User] = Relationship(back_populates="shared_articles", link_model="ArticleUser")
-
+# 外键 foreign_key
 class ArticleUser(SQLModel, table=True):
     article_id: int = Field(foreign_key="article.id", primary_key=True)
     user_id: int = Field(foreign_key="user.id", primary_key=True)
