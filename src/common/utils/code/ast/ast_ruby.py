@@ -1,7 +1,7 @@
 from tree_sitter import Node
-from common.utils.ast import Ast
-from common.utils.enum.code import CodeType
-from tree_sitter_codes import TreeSitterCodes
+from utils.multi_ast.ast import Ast
+from utils.enum_code import CodeType
+from utils.tree_sitter_codes import TreeSitterCodes
 import uuid
 
 tree_sitter_options = {

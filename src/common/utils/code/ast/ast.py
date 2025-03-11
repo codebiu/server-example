@@ -1,21 +1,12 @@
 from abc import ABC, abstractmethod
 from tree_sitter import Node
-from common.utils.enum.code import CodeType
-from tree_sitter_codes import TreeSitterCodes
+from utils.enum_code import CodeType
+from utils.tree_sitter_codes import TreeSitterCodes
 import uuid
 
 tree_sitter_options = {
     "query": """
                 ;; 类外entity
-                (program
-                    (assignment
-                        left: [
-                            (identifier) @name
-                            (instance_variable) @name
-                            (class_variable) @name
-                        ]
-                    ) @entity
-                )
                 """
 }
 

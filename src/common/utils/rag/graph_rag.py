@@ -6,9 +6,9 @@ import sys, pathlib
 import time
 
 # from common.utils.dataBase.DataBaseNeo4j import GraphTraversal
-from common.utils.code.ast_python import AstPython
+from common.utils.code.ast.ast_python import AstPython
 from common.utils.rag.graphRAG.prompt import AnalysisPrompt
-from common.utils.media.openai.OpenAIClient import OpenAIClient
+from common.utils.media.ai.OpenAIClient import OpenAIClient
 
 # 文件遍历
 from common.utils.file.directory_tree import DirectoryTree
