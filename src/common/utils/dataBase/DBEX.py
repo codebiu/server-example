@@ -5,9 +5,22 @@ import sqlmodel
 
 
 class DBExtentiontentionBase:
+    """
+    数据库扩展基类
+    提供通用的增删改查方法
+    """
     def controller_init(routerThis, description, Do, DoCreate,DoUpdate) -> str:
+        """
+        初始化控制器方法
+        :param routerThis: FastAPI路由对象
+        :param description: 描述信息
+        :param Do: 数据模型类
+        :param DoCreate: 创建数据模型类
+        :param DoUpdate: 更新数据模型类
+        :return: 无
+        """
         class DaoSelf:
-            """test"""
+            """内部DAO类"""
 
         DBExtentiontentionBase.dao_init(DaoSelf,Do, DoCreate,DoUpdate)
 
@@ -15,38 +28,67 @@ class DBExtentiontentionBase:
             "/default",
             status_code=status.HTTP_201_CREATED,
             summary=f"添加{description}返回id",
+            response_description="返回创建的数据ID"
         )
         async def add(do: DoCreate) -> str:
+            """
+            添加数据
+            :param do: 创建数据对象
+            :return: 创建的数据ID
+            """
             return await DaoSelf.add(do)
 
         @routerThis.delete(
             "/default",
             summary=f"删除{description}",
+            response_description="删除成功返回None"
         )
         async def delete(id: str):
+            """
+            删除数据
+            :param id: 数据ID
+            :return: 无
+            """
             return await DaoSelf.delete(id)
 
         @routerThis.put(
             "/default",
             summary=f"更新{description}",
+            response_description="更新成功返回None"
         )
         async def update(do: Do):
+            """
+            更新数据
+            :param do: 更新数据对象
+            :return: 无
+            """
             await DaoSelf.update(do)
 
         @routerThis.get(
             "/default",
             status_code=status.HTTP_201_CREATED,
             summary=f"获取单个{description}",
+            response_description="返回查询到的数据对象"
         )
         async def select(id: str) -> Do | None:
+            """
+            查询单条数据
+            :param id: 数据ID
+            :return: 查询到的数据对象
+            """
             return await DaoSelf.select(id)
 
         @routerThis.get(
             "/default/list",
             status_code=status.HTTP_201_CREATED,
             summary=f"获取批量{description}",
+            response_description="返回数据列表"
         )
         async def list():
+            """
+            查询数据列表
+            :return: 数据列表
+            """
             return await DaoSelf.list()
 
     def dao_init(DoDao,Do, DoCreate,DoUpdate):

@@ -4,8 +4,15 @@ from datetime import datetime
 
 
 class DictBase(SQLModel):
-    key: str
-    value: str
+    """字典表基础模型"""
+    key: str = Field(description="字典键", max_length=100, index=True)
+    value: str = Field(description="字典值", max_length=255)
+    # type: str = Field(default="default", description="字典类型", max_length=50)
+    # description: str = Field(default="", description="字典描述", max_length=255)
+    # sort: int = Field(default=0, description="排序字段")
+    # status: int = Field(default=1, description="状态: 0-禁用 1-启用")
+    # is_system: bool = Field(default=False, description="是否系统字典")
+    # is_deleted: bool = Field(default=False, description="是否已删除")
 
 
 class Dict(DictBase, table=True):
@@ -28,5 +35,8 @@ class DictCreate(DictBase):
     pass
 
 
-class DictPublic:
+class DictPublic(DictBase):
+    """字典表公开模型"""
     id: str
+    created_at: datetime
+    update_at: datetime | None
