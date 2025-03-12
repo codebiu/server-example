@@ -62,7 +62,7 @@ class Translator:
                 return await response.json()
 
     async def tengxun_translate(
-        self, query: str, appKey: str, secret: str, url="https://openapi.youdao.com/api"
+        self, query: str, appKey: str, secret: str, url=""
     ) -> dict:
         """
         使用tengxun进行翻译
@@ -70,12 +70,29 @@ class Translator:
         pass
     
     async def ai_translate(
-        self, query: str, appKey: str, secret: str, url="https://openapi.youdao.com/api"
+        self, query: str, appKey: str, secret: str, url=""
     ) -> dict:
         """
         使用ai进行翻译
         """
-        pass
+        prompt = f"请将以下代码翻译为中文：\n{query}"
+        if self.source_lang == "en" and self.target_lang == "zh":
+            prompt = f"请将以下英文翻译为中文：{query}"
+        elif self.source_lang == "zh" and self.target_lang == "en":
+            prompt = f"please translate the following Chinese to English: {query}"
+        elif self.source_lang == "zh" and self.target_lang == "ja":
+            prompt = f"以下を日本語に翻訳お願いします。{query}"
+        elif self.source_lang == "ja" and self.target_lang == "zh":
+            prompt = f"请将以下日语翻译为中文：{query}"
+        elif self.source_lang == "en" and self.target_lang == "ja":
+            prompt = f"以下を英語から日本語に翻訳してください。{query}"
+        elif self.source_lang == "ja" and self.target_lang == "en":
+            prompt = f"please translate the following Japanese to English: {query}"
+        else:
+            prompt = f"请将以下代码翻译为中文：\n{query}"
+        # 调用翻译接口
+        # TODO
+        return {"trans_result": [{"dst": "翻译结果"}]}
 
 
 if __name__ == "__main__":
