@@ -17,15 +17,13 @@ class ChatBaidu:
     url: str
 
     def __init__(self, API_KEY, SECRET_KEY) -> None:
-        
-        self.url  = "https://qianfan.baidubce.com/v2/chat/completions"
+        self.url = "https://qianfan.baidubce.com/v2/chat/completions"
         # head
-        self. headers = {
-        'Content-Type': 'application/json',
-        'appid': API_KEY,
-        'Authorization': 'Bearer '+ SECRET_KEY
-    }
-    
+        self.headers = {
+            'Content-Type': 'application/json',
+            'appid': API_KEY,
+            'Authorization': 'Bearer ' + SECRET_KEY
+        }
 
     def ask(self, ask_dict):
         ask_dict["model"] = "qwq-32b"
@@ -39,7 +37,7 @@ class ChatBaidu:
             "POST", self.url, headers=self.headers, data=payload.encode("utf-8")
         )
         return response.text
-    
+
     def ask_stream(self, ask_dict):
         ask_dict["model"] = "qwq-32b"
         ask_dict["web_search"] = {
@@ -50,6 +48,16 @@ class ChatBaidu:
         ask_dict["stream"] = True
         payload = json.dumps(ask_dict)
 
+        # 发起流式请求
+        response = requests.post(
+            self.url, headers=self.headers, data=payload, stream=True
+        )
+
+        # 逐块读取响应内容
+        for chunk in response.iter_content(chunk_size=None):
+            if chunk:
+                yield chunk.decode("utf-8")
+
 
 if __name__ == '__main__':
     # self
@@ -57,5 +65,12 @@ if __name__ == '__main__':
     api_key = conf["ai"]["baidu_ai_qwq"]['api_key']
     secret_key = conf["ai"]["baidu_ai_qwq"]['secret_key']
     chatBaidu = ChatBaidu(api_key, secret_key)
-    result = chatBaidu.ask(test_ask)
-    print(result)
+
+    # 普通请求
+    # result = chatBaidu.ask(test_ask)
+    # print("普通请求结果:", result)
+
+    # 流式请求
+    print("流式请求结果:")
+    for chunk in chatBaidu.ask_stream(test_ask):
+        print(chunk)
