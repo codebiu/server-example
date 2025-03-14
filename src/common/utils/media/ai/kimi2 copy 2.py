@@ -4,8 +4,6 @@ import json
 from openai import OpenAI
  
 client = OpenAI(
-    base_url="https://api.moonshot.cn/v1",
-    api_key="sk-GZcOwtHTE0UU9694OTp6kULM9Jz8XOQsN0AYUm3XsmIbIzxZ",
 )
 tools = [
     {
