@@ -95,8 +95,6 @@ class OpenAIClient:
 
 # 运行示例
 if __name__ == "__main__":
-    # 引入路径
-    import sys, pathlib; [sys.path.append(str(pathlib.Path(__file__).resolve().parents[i])) for i in range(4)]
     # self
     from config.index import conf
     # 示例使用

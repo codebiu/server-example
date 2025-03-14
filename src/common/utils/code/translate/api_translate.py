@@ -101,7 +101,7 @@ if __name__ == "__main__":
         translator = Translator()
         # 百度翻译示例
         baidu_your_appid = conf["ai"]["baidufanyi"]["appid"]
-        baidu_secret_key = conf["ai"]["baidufanyi"]["secret_key"]
+        baidu_secret_key = conf["ai"]["baidufanyi"]["api_key"]
         baidu_api_url = conf["ai"]["baidufanyi"]["api_url"]
         baidu_result = await translator.baidu_translate(
             "Hello, world!", baidu_your_appid, baidu_secret_key, baidu_api_url
