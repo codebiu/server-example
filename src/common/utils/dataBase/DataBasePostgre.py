@@ -13,10 +13,10 @@ class DataBasePostgre(DataBaseInterface):
     engine: create_async_engine = None
     sessionLocal: sessionmaker = None
 
-    def __init__(self, path: str, user: str, pwd: str, host: str, port: int):
+    def __init__(self, user: str, pwd: str, host: str, port: int, database: str):
         type = "postgresql+asyncpg"
         # postgresql+asyncpg://hero:heroPass123@0.0.0.0:5432/heroes_db
-        self.url = f"{type}://{user}:{pwd}@{host}:{port}/{path}"
+        self.url = f"{type}://{user}:{pwd}@{host}:{port}/{database}"
         # todo: mysql
         #  "mysql+pymysql://user:password@host:port/database"
 
