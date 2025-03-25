@@ -94,7 +94,7 @@ class DBExtentiontentionBase:
     def dao_init(DoDao,Do, DoCreate,DoUpdate):
 
         @DataNoCommit
-        async def add(do: DoCreate, session=AsyncSession) -> str:
+        async def add(do: Do, session=AsyncSession) -> str:
             """插入一个新的do  无需显式调用 session.commit()，因为装饰器已经处理了"""
             db_do = Do.model_validate(do)
             session.add(db_do)
@@ -153,7 +153,7 @@ class DBExtention(DBExtentiontentionBase):
             status_code=status.HTTP_201_CREATED,
             summary=f"添加{description}返回id",
         )
-        async def add(do: DoCreate) -> str:
+        async def add(do: Do) -> str:
             return await DoService.add(do)
 
         @routerThis.delete(
@@ -189,7 +189,7 @@ class DBExtention(DBExtentiontentionBase):
     # service初始化
     def service_init(DoService, DoDao, Do, DoCreate, DoUpdate):
         @staticmethod
-        async def add(do: DoCreate) -> str:
+        async def add(do: Do) -> str:
             return await DoDao.add(do)
 
         DoService.add = add

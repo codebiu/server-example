@@ -1,7 +1,7 @@
 # self
 # from config.log import logger
 from config.server import app
-from module_main.service.dict import DictService
+from ..service.dict import DictService
 from module_main.do.dict import Dict, DictCreate, DictUpdate
 from common.utils.dataBase.DBEX import DBExtention, DBExtentiontentionBase
 

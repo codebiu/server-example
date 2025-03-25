@@ -3,6 +3,7 @@ from config.log import logger
 from config.server import app
 from config.index import conf
 from module_main.controller import *
+from module_blog.controller import *
 from module_todo.controller import *
 # lib
 logger.info("ok...基础依赖全部")

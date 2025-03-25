@@ -1,35 +1,35 @@
 # self
 from do.$template_name import $TemplateName
-from dao.$template_name import UserDao
+from dao.$template_name import $TemplateNameDao
 
 # lib
 
 
-class UserService:
+class $TemplateNameService:
     """$template_name"""
 
     @staticmethod
     async def add($template_name: $TemplateName)->str:
-        return await UserDao.add($template_name)
+        return await $TemplateNameDao.add($template_name)
 
     @staticmethod
     async def delete(id: str):
-        await UserDao.delete(id)
+        await $TemplateNameDao.delete(id)
 
     @staticmethod
     async def update($template_name: $TemplateName):
-        await UserDao.update($template_name)
+        await $TemplateNameDao.update($template_name)
 
     @staticmethod
     async def select(id: str) -> $TemplateName | None:
-        return await UserDao.select(id)
+        return await $TemplateNameDao.select(id)
     @staticmethod
     async def select_by_email(email: str) -> $TemplateName | None:
-        return await UserDao.select_by_email(email)
+        return await $TemplateNameDao.select_by_email(email)
     @staticmethod
     async def select_by_tel(tel: str) -> $TemplateName | None:
-        return await UserDao.select_by_tel(tel)
+        return await $TemplateNameDao.select_by_tel(tel)
     
     @staticmethod
     async def list() -> list[$TemplateName]:
-        return await UserDao.list()
+        return await $TemplateNameDao.list()
