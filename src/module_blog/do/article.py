@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Column, DateTime, Field, SQLModel
 from uuid import uuid4
 from datetime import datetime
 
@@ -15,19 +15,48 @@ class ArticleBase(SQLModel):
 
 
 class Article(ArticleBase, table=True):
-    """表结构"""
-    
-    # uuid 标准格式
     id: str = Field(
-        default_factory=lambda: uuid4().hex, primary_key=True, index=True, unique=True,description="文章的唯一标识符")
-    created_at: datetime = Field(default=datetime.now(),description="文章的创建时间")
-    update_at: datetime | None = Field(description="文章的最后更新时间")
+        default_factory=lambda: uuid4().hex,
+        primary_key=True,
+        index=True,
+        unique=True,
+        description="文章的唯一标识符",
+    )
+    created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=True,
+        ),
+        default_factory=datetime.now,  # 动态生成当前时间
+        description="文章的创建时间",
+    )
+    update_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=True,
+        ),
+        default_factory=datetime.now,  # 首次创建时等于 created_at
+        description="文章的最后更新时间",
+    )
 
 
-class ArticleUpdate(ArticleBase):
+class ArticleUpdate(SQLModel):
+    # 仅包含可更新字段，避免覆盖 created_at
+    title: str | None = None
+    content: str | None = None
+    category: str | None = None
+    tags: str | None = None
+    is_published: bool | None = None
+    update_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=True,
+        ),
+        default_factory=datetime.now,
+    )  # 动态更新时间
+
+
+class ArticlePublic(ArticleBase):
     id: str
-    update_at: datetime = Field(default=datetime.now())
-
-
-class ArticlePublic:
-    id: str
+    created_at: datetime
+    update_at: datetime | None
