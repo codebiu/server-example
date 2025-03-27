@@ -1,6 +1,6 @@
 # self
-from do.$template_name import $TemplateName
-from dao.$template_name import $TemplateNameDao
+from ..do.$template_name import $TemplateName
+from ..dao.$template_name import $TemplateNameDao
 
 # lib
 

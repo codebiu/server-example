@@ -1,8 +1,8 @@
 # self
 # from config.log import logger
 from config.server import app
-from service.$template_name import $TemplateNameService
-from do.$template_name import $TemplateName
+from ..service.$template_name import $TemplateNameService
+from ..do.$template_name import $TemplateName
 
 # lib
 from fastapi.responses import JSONResponse
