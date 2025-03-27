@@ -60,6 +60,8 @@ conda env create -f environment.yml -n test_all
 # 把环境 rcnn 重命名成 tf
 conda create -n tf --clone rcnn
 conda remove -n rcnn --all 
+# 编码
+pip install chardet
 
 ```
 
