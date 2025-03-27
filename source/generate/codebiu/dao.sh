@@ -3,7 +3,7 @@ from sqlmodel import select
 
 # self
 from config.db import Data,DataNoCommit
-from do.$template_name import $TemplateName,$TemplateNameCreate, $TemplateNameLogin, $TemplateNamePublic
+from ..do.$template_name import $TemplateName,$TemplateNameCreate, $TemplateNameLogin, $TemplateNamePublic
 
 
 class $TemplateNameDao:
