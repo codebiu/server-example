@@ -6,7 +6,7 @@ test_ask = {
     "messages": [
         {
             "role": "user",
-            "content": '以json格式{"相似度":number}返回(晾衣服去111)和(去晾衣服111)两个命令相似度数值范围0-1,只返回json,删除多余话语',
+            "content": '测试',
         }
     ]
 }
