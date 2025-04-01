@@ -26,7 +26,7 @@ app.mount(
 
 ############################### 自定义 Swagger #######################################
 # 自定义 Swagger 文档路由，指向本地的 Swagger UI 文件
-@app.get("/docs_self", include_in_schema=False, tags=["base set"])
+@app.get("/docs", include_in_schema=False, tags=["base set"])
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,

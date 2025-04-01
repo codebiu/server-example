@@ -10,3 +10,4 @@ build
 uploaded_files
 config.dev.yaml
 temp
+package-lock.json
