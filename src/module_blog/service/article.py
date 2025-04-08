@@ -4,23 +4,17 @@ from ..do.article import Article
 from ..dao.article import ArticleDao
 from sqlmodel.ext.asyncio.session import AsyncSession
 # lib
+from config.db import async_transaction
 
 
 class ArticleService:
     """article"""
     def __init__(self, session: AsyncSession):
+        self.session = session
         self.articleDao = ArticleDao(session)
         # self.user_dao = UserDAO(session)
         
-    @contextmanager
-    def transaction(self):
-        """服务层事务管理"""
-        try:
-            yield
-            self.dao.session.commit()
-        except Exception:
-            self.dao.session.rollback()
-            raise
+
 
     async def add(self,article: Article)->str:
         return await self.articleDao.add(article)

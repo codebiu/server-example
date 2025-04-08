@@ -6,7 +6,10 @@ FastAPI Base Config
 # 第三方库导入
 from functools import wraps
 from typing import Callable, Any, Coroutine
-
+from contextlib import asynccontextmanager
+from sqlmodel.ext.asyncio.session import AsyncSession
+from typing import AsyncIterator
+from typing import Callable, TypeVar, Any, Coroutine
 # 项目模块导入
 from common.utils.dataBase.DataBasePostgre import DataBasePostgre
 from common.utils.dataBase.DataBaseInterface import DataBaseInterface
@@ -103,3 +106,63 @@ async def _execute_with_session(
 # 快捷装饰器定义
 Data = db_session(commit=True)
 DataNoCommit = db_session(commit=False)
+
+####################################### 注入模式 ###################################
+
+
+
+T = TypeVar('T')
+
+def auto_commit(func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., Coroutine[Any, Any, T]]:
+    """
+    优化版自动事务装饰器：
+    - 纯查询操作自动跳过提交
+    - 智能检测INSERT/UPDATE/DELETE操作
+    - 保持自动session管理能力
+    """
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs) -> T:
+        # 判断是否需要创建新session
+        need_new_session = (
+            not hasattr(self, 'session') or 
+            not isinstance(self.session, AsyncSession) or
+            not self.session.is_active
+        )
+
+        # 检测是否为纯查询
+        def is_read_only():
+            return not any([
+                self.session.new,  # 没有新增对象
+                self.session.dirty,  # 没有修改对象
+                self.session.deleted  # 没有删除对象
+            ])
+
+        if need_new_session:
+            async with session_factory() as session:
+                self.session = session
+                try:
+                    result = await func(self, *args, **kwargs)
+                    # 只有非查询操作才提交
+                    if not is_read_only():
+                        await session.commit()
+                    return result
+                except Exception as e:
+                    if not is_read_only():
+                        await session.rollback()
+                    raise
+                finally:
+                    delattr(self, 'session')
+        else:
+            has_existing_tx = await self.session.in_transaction()
+            try:
+                result = await func(self, *args, **kwargs)
+                # 只有非查询且无现有事务才提交
+                if not has_existing_tx and not is_read_only():
+                    await self.session.commit()
+                return result
+            except Exception as e:
+                if not has_existing_tx and not is_read_only():
+                    await self.session.rollback()
+                raise
+
+    return wrapper
