@@ -1,10 +1,12 @@
 # self
 from contextlib import contextmanager
+
+from fastapi import Depends
 from ..do.article import Article
 from ..dao.article import ArticleDao
 from sqlmodel.ext.asyncio.session import AsyncSession
 # lib
-from config.db import async_transaction
+# from config.db import async_transaction
 
 
 class ArticleService:

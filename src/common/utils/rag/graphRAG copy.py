@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
   
         start_time = time.time()
-        async with db.sessionLocal() as session:
+        async with db.sessionFactory() as session:
             tasks = []
             for file in file_list:
                 tasks.append(taskFuc(file, session))

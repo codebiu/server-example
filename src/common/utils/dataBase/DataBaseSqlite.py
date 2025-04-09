@@ -6,7 +6,7 @@ from common.utils.dataBase.DataBaseInterface import DataBaseInterface
 class DataBaseSqlite(DataBaseInterface):
     url: str = None
     engine: create_async_engine = None
-    sessionLocal: sessionmaker = None
+    sessionFactory: sessionmaker = None
 
     def __init__(self, path: str):
         # 打包跟随程序
@@ -16,7 +16,7 @@ class DataBaseSqlite(DataBaseInterface):
     def connect(self):
         # 控制台打印SQL
         self.engine = create_async_engine(self.url, echo=True)
-        self.sessionLocal = sessionmaker(
+        self.sessionFactory = sessionmaker(
             self.engine, expire_on_commit=False, class_=AsyncSession
         )
 

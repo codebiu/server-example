@@ -11,7 +11,7 @@ class DataBasePostgre(DataBaseInterface):
     host: str = None
     port: int = None
     engine: create_async_engine = None
-    sessionLocal: sessionmaker = None
+    sessionFactory: sessionmaker = None
 
     def __init__(self, user: str, pwd: str, host: str, port: int, database: str):
         type = "postgresql+asyncpg"
@@ -23,7 +23,7 @@ class DataBasePostgre(DataBaseInterface):
     def connect(self):
         # 控制台打印SQL
         self.engine = create_async_engine(self.url, echo=True)
-        self.sessionLocal = sessionmaker(
+        self.sessionFactory = sessionmaker(
             self.engine, expire_on_commit=False, class_=AsyncSession
         )
 

@@ -20,7 +20,7 @@ class ArticleDao:
         if article:
             await self.session.delete(article)
 
-    async def update(self, id: str, article_update: ArticleUpdate) -> Optional[Article]:
+    async def update(self, id: str, article_update: ArticleUpdate) -> Article | None:
         article = await self.session.get(Article, id)
         if article:
             for key, value in article_update.dict(exclude_unset=True).items():

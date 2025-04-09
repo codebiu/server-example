@@ -7,7 +7,7 @@ class DataBaseNeo4jAsync(DataBaseInterface):
     url: str = None
     pwd: str = None
     user: str = None
-    sessionLocal = None
+    sessionFactory = None
 
     def __init__(self, user: str, pwd: str, host: str, port: int,path: str ="neo4j" ):
         self.url = f"neo4j://{host}:{port}"
@@ -17,10 +17,10 @@ class DataBaseNeo4jAsync(DataBaseInterface):
         
     async def connect(self):
         self.driver = AsyncGraphDatabase.driver(self.url, auth=(self.user, self.pwd), database=self.path,max_connection_pool_size=100)
-        self.sessionLocal = self.driver.session
+        self.sessionFactory = self.driver.session
 
     async def cypher_query(self, query: str, params: dict = None):
-        async with self.sessionLocal() as session:
+        async with self.sessionFactory() as session:
             result = await session.run(query, params)
             return result
         
