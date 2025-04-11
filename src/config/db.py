@@ -57,57 +57,47 @@ logger.info("ok...关系型数据库配置")
 @asynccontextmanager
 async def get_db_session() -> AsyncIterator[AsyncSession]:
     """
-    会话管理器：完全由Service层控制事务,仅作为会话生命周期入口
+    完整托管会话：自动处理事务和连接生命周期
     """
-    async with session_factory() as session:
-        try:
+    async with session_factory() as session:  # 自动调用 __aenter__
+        async with session.begin():           # 自动事务管理
             yield session
-        finally:
-            # 确保会话关闭，事务由Service层控制
-            await session.close()
 
 ####################################### 注入模式 ###################################
 
 
 T = TypeVar('T')
-
-def auto_commit(func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., Coroutine[Any, Any, T]]:
+def Dao(func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., Coroutine[Any, Any, T]]:
     """
-    增强版自动事务装饰器：
+    改进版自动事务装饰器（使用async with管理会话）：
     1. 支持嵌套事务
     2. 自动检测是否需要提交
     3. 支持手动控制事务
+    4. 使用async with确保资源释放
     """
     @wraps(func)
     async def wrapper(self, *args, **kwargs) -> T:
-        # 检查是否已有session
-        session: Optional[AsyncSession] = getattr(self, 'session', None)
-        is_new_session = False
+        # 检查是否已有有效会话
+        existing_session: Optional[AsyncSession] = getattr(self, 'session', None)
         
-        if session is None or not isinstance(session, AsyncSession) or not session.is_active:
-            # 创建新session
-            session = session_factory()
-            setattr(self, 'session', session)
-            is_new_session = True
-            await session.__aenter__()
-        
-        try:
-            result = await func(self, *args, **kwargs)
-            
-            # 只有是新session且没有活跃事务时才自动提交
-            if is_new_session and not await session.in_transaction():
-                await session.commit()
-            
-            return result
-        except Exception as e:
-            # 只有是新session时才回滚
-            if is_new_session and await session.in_transaction():
-                await session.rollback()
-            raise
-        finally:
-            # 只有是新session时才关闭
-            if is_new_session:
-                await session.__aexit__(None, None, None)
+        if existing_session and isinstance(existing_session, AsyncSession) and existing_session.is_active:
+            # 使用现有会话
+            return await func(self, *args, **kwargs)
+        else:
+            # 创建新会话并管理其生命周期
+            async with session_factory() as session:
+                setattr(self, 'session', session)
+                try:
+                    async with session.begin():
+                        result = await func(self, *args, **kwargs)
+                        return result
+                except Exception as e:
+                    logger.error(f"数据库操作失败: {e}", exc_info=True)
+                    if session.in_transaction():
+                        await session.rollback()
+                    raise
+                finally:
+                    delattr(self, 'session')  # 清理会话引用
     
     return wrapper
 

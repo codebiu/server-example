@@ -36,3 +36,4 @@ class ArticleDao:
         result = await self.session.exec(select(Article))
         articles = result.all()
         return articles
+    
