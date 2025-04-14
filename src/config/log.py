@@ -6,7 +6,6 @@ from pathlib import Path
 # 使用basicConfig()来指定日志级别和相关信息
 from config.path import dir_log
 from config.index import conf
-from common.utils.enum.color import Color
 from common.utils.log.ColoredConsoleHandler import ColoredConsoleHandler
 from common.utils.log.CustomTimedRotatingFileHandler import CustomTimedRotatingFileHandler
 
@@ -58,8 +57,10 @@ def setup_logging():
     else:
         file_handler.setLevel(logging.ERROR)
     logger.addHandler(file_handler)
-    
+
+# 配置
 setup_logging()
+# 生成
 logger = logging.getLogger()
 # 输出带颜色的日志
 logger.info('%s %s', 'ok...log配置', "多log")
