@@ -24,22 +24,15 @@ from config.index import conf
 def get_database()-> DataBaseInterface:
     if conf["database"].get("sqlite"):
         database_config = conf["database"].get("sqlite")
-        SQLALCHEMY_DATABASE_URL = database_config["path"]
-        return DataBaseSqlite(SQLALCHEMY_DATABASE_URL)
+        return DataBaseSqlite(database_config["path"])
     elif conf["database"].get("postgresql"):
-        database_config = conf["database"].get("postgresql")
-        SQLALCHEMY_DATABASE_HOST = database_config["host"]
-        SQLALCHEMY_DATABASE_PORT = database_config["port"]
-        SQLALCHEMY_DATABASE_USER = database_config["user"]
-        SQLALCHEMY_DATABASE_PWD = database_config["password"]
-        SQLALCHEMY_DATABASE_DATABASE = database_config["database"]
-        
+        database_config = conf["database"].get("postgresql")        
         return DataBasePostgre(
-            SQLALCHEMY_DATABASE_USER,
-            SQLALCHEMY_DATABASE_PWD,
-            SQLALCHEMY_DATABASE_HOST,
-            SQLALCHEMY_DATABASE_PORT,
-            SQLALCHEMY_DATABASE_DATABASE
+            database_config["user"],
+            database_config["password"],
+            database_config["host"],
+            database_config["port"],
+            database_config["database"]
         )
 
 
