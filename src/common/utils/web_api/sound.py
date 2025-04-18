@@ -25,7 +25,7 @@ def play_mp3(file_path):
     except Exception as e:
         print(f"播放失败: {e}")
 
-def search_mp3_duckduckgo(query, save_dir="downloads"):
+def search_mp3_duckduckgo(query, save_dir="temp"):
     """
     使用 DuckDuckGo 搜索并下载 MP3 文件。
     """

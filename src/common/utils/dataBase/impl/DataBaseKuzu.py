@@ -46,24 +46,4 @@ class DataBaseKuzu:
         self.conn.execute("CREATE REL TABLE Belong(FROM Folder TO Folder)")
         self.conn.execute("CREATE REL TABLE Belong(FROM File TO Folder)")
         
-if __name__ == "__main__":
 
-    # # 文件遍历
-    # from common.utils.file.directory_tree import DirectoryTree
-    # # directory_tree = DirectoryTree.build_directory_tree(r'D:\test\fastapi')
-    # # # 将目录树转换为 JSON 格式
-    # # json_tree = json.dumps(
-    # #     directory_tree,
-    # #     #默认输出ASCLL码，False可以输出中文。
-    # #     # 带格式
-    # #     indent=4,
-    # #     ensure_ascii=False,
-    # # )
-    # # print(json_tree)
-    
-    # path_grapg_db ="D:/test/kuzu_db"
-    # graph = KuzuGraph(path_grapg_db)
-    # # graph.refresh()
-    # # graph.clear_database()
-    # # graph.create()
-    # conn = graph.conn

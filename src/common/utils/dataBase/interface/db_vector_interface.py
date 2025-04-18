@@ -1,0 +1,9 @@
+class DBVectorInterface:
+    def __init__(self, db: str, db_name: str):
+        ...
+
+    def execute_graph_query(self, query: str, parameters: Optional[Dict] = None) -> Any:
+        ...
+
+    def close(self):
+        ...

@@ -1,69 +1,70 @@
 # baselib
 from abc import ABC, abstractmethod
 
-
-# 数据接口类  TODO 考虑合并
 class DBInterface(ABC):
+    """
+    数据库接口
+
+    定义了所有数据库操作类需要遵循的基本接口契约。
+    任何继承自此类的具体数据库实现都必须实现所有标记为 @abstractmethod 的方法。
+    """
+
     @abstractmethod
     def __init__(self):
-        raise NotImplementedError
+        """
+        初始化方法。
 
+        子类必须实现此方法，通常用于接收数据库连接所需的配置参数
+        （例如：主机地址、端口、用户名、密码、数据库名等）。
+        由于是抽象方法，基类中不提供具体实现。
+        """
+        raise NotImplementedError("子类必须实现 __init__ 方法")
+
+    @abstractmethod
     def connect(self):
-        """ 建立数据库连接"""
-        raise NotImplementedError
+        """
+        建立数据库连接。
 
+        子类需要实现具体的数据库连接逻辑。
+        """
+        raise NotImplementedError("子类必须实现 connect 方法")
+
+    @abstractmethod
+    def is_connected(self):
+        """
+        检查当前数据库连接状态。
+
+        子类需要实现检查连接是否有效、活动的逻辑。
+        :return: 如果连接有效则返回 True，否则返回 False。
+        """
+        raise NotImplementedError("子类必须实现 is_connected 方法")
+
+    @abstractmethod
+    def reconnect(self):
+        """
+        重新连接数据库。
+
+        通常在连接丢失或需要刷新连接时调用。
+        子类需要实现断开现有连接（如果需要）并重新建立连接的逻辑。
+        """
+        raise NotImplementedError("子类必须实现 reconnect 方法")
+
+    @abstractmethod
     def disconnect(self):
-        raise NotImplementedError
-    
-    
-#     数据库基类方法需要哪些，作为图数据库向量数据库等多种数据库的基类
-# 数据库基类方法设计
-# 作为图数据库、向量数据库等多种数据库的基类，应该包含以下核心方法：
+        """
+        断开数据库连接。
 
-# 连接管理
-# connect(config: dict) -> bool: 建立数据库连接
-# disconnect() -> bool: 关闭数据库连接
-# is_connected() -> bool: 检查连接状态
-# reconnect() -> bool: 重新连接数据库
-# 基本CRUD操作
-# create(collection: str, data: dict/object) -> str/object: 创建记录
-# read(collection: str, query: dict, options: dict=None) -> list: 读取记录
-# update(collection: str, query: dict, update_data: dict, options: dict=None) -> int: 更新记录
-# delete(collection: str, query: dict, options: dict=None) -> int: 删除记录
-# count(collection: str, query: dict=None) -> int: 统计记录数
-# 事务管理
-# begin_transaction() -> bool: 开始事务
-# commit() -> bool: 提交事务
-# rollback() -> bool: 回滚事务
-# 集合/表管理
-# create_collection(name: str, schema: dict=None) -> bool: 创建集合/表
-# drop_collection(name: str) -> bool: 删除集合/表
-# list_collections() -> list: 列出所有集合/表
-# collection_exists(name: str) -> bool: 检查集合是否存在
-# 索引管理
-# create_index(collection: str, field: str, options: dict=None) -> bool: 创建索引
-# drop_index(collection: str, index_name: str) -> bool: 删除索引
-# list_indexes(collection: str) -> list: 列出索引
-# 查询功能
-# find(collection: str, query: dict, options: dict=None) -> cursor/iterator: 查询记录
-# find_one(collection: str, query: dict, options: dict=None) -> dict/object: 查询单条记录
-# aggregate(collection: str, pipeline: list) -> cursor/iterator: 聚合查询
-# 特定于图数据库的方法
-# create_node(label: str, properties: dict) -> str/object: 创建节点
-# create_relationship(start_node: str/object, end_node: str/object, type: str, properties: dict) -> str/object: 创建关系
-# traverse(start_node: str/object, traversal_spec: dict) -> list: 图遍历
-# shortest_path(start_node: str/object, end_node: str/object, options: dict=None) -> list: 最短路径查询
-# 特定于向量数据库的方法
-# vector_search(collection: str, vector: list, options: dict) -> list: 向量相似度搜索
-# batch_vector_search(collection: str, vectors: list, options: dict) -> list: 批量向量搜索
-# create_vector_index(collection: str, field: str, index_type: str, options: dict) -> bool: 创建向量索引
-# 管理方法
-# execute_command(command: str/object) -> any: 执行原生命令
-# get_stats() -> dict: 获取数据库统计信息
-# backup(destination: str) -> bool: 备份数据库
-# restore(source: str) -> bool: 恢复数据库
-# 实用方法
-# ping() -> bool: 检查数据库是否响应
-# get_version() -> str: 获取数据库版本
-# get_features() -> dict: 获取数据库支持的功能
-# 这个基类设计提供了足够的抽象来支持多种数据库类型，同时允许特定数据库实现根据需要覆盖或扩展这些方法。
+        子类需要实现关闭数据库连接并释放相关资源的逻辑。
+        """
+        raise NotImplementedError("子类必须实现 disconnect 方法")
+
+    @abstractmethod
+    def get_info(self):
+        """
+        获取数据库相关信息。
+
+        例如：数据库版本、服务器状态、连接参数等。
+        子类需要实现获取其特定数据库信息的逻辑。
+        :return: 包含数据库信息的字典或其他合适的数据结构。
+        """
+        raise NotImplementedError("子类必须实现 get_info 方法")

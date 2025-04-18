@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
-from common.utils.dataBase.DataBaseInterface import DataBaseInterface
+from common.utils.dataBase.interface.db_relational_interface import DBRelationInterface
 
-class DataBaseSqlite(DataBaseInterface):
+class DataBaseSqlite(DataBaseInterface,DBRelationInterface):
     url: str = None
     engine: create_async_engine = None
     sessionFactory: sessionmaker = None

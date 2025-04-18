@@ -15,7 +15,7 @@ conda env list
 conda config --append channels conda-forge
 
 # 初始环境
-conda create -n server_py python=3.10 
+conda create -n server_py python=3.12
 
 # 进入环境
 conda activate server_py
@@ -62,6 +62,8 @@ conda create -n tf --clone rcnn
 conda remove -n rcnn --all 
 # 编码
 pip install chardet
+# lsp
+pip install pylyzer
 
 ```
 
