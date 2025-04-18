@@ -1,7 +1,7 @@
 class DatabaseMode(Enum):
-    # 嵌入式数据库
+    # 嵌入式数据库 使用sqlite(包含插件sqlvec)和kuzu(图数据库)
     EMBEDDED = "sqlite_sqlvec_kuzu"
-    # postgres
+    # postgres(包含向量插件pgvector和图插件apache age)
     POSTGRES = "postgres_pgvector_apacheage"
 
 
