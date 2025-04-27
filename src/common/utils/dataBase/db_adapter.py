@@ -1,25 +1,31 @@
-
-
+# 根据配置选用嵌入式和bs数据库
+# 当前考虑:关系数据库 向量数据库 图数据库
+# @代指插件模式数据库本体@插件)
+# 嵌入式: sqlite sqlite@sqlvec kuzu
+# bs数据库: postgres postgres@pgvector postgres@apacheage
 
 from enum import Enum
 
-class DatabaseMode(Enum):
-    # 嵌入式数据库 使用sqlite(包含插件sqlvec)和kuzu(图数据库)
-    EMBEDDED = "sqlite_sqlvec_kuzu"
-    # postgres(包含向量插件pgvector和图插件apache age)
-    POSTGRES = "postgres_pgvector_apacheage"
+from common.utils.dataBase.interface.db_interface import DBInterface
+from common.utils.dataBase.strategy.postgres_strategy import PostgresStrategy
 
-class DatabaseAdapter:
+class DBMode(Enum):
+    # 嵌入式数据库 使用sqlite(包含插件sqlvec)和kuzu(图数据库)
+    EMBEDDED = "sqlite_sqlite@sqlvec_kuzu"
+    # postgres(包含向量插件pgvector和图插件apache age)
+    POSTGRES = "postgres_postgres@pgvector_postgres@apacheage"
+
+class DBAdapter:
     """统一数据库适配器（策略模式版）"""
-    def __init__(self, mode: DatabaseMode, connection_params: dict[str, any]|None = None):
-        self._strategy = self._create_strategy(mode)
+    def __init__(self, mode: DBMode, connection_params: dict[str, any]|None = None):
+        self._strategy:DBInterface = self._create_strategy(mode)
         self._params = connection_params or {}
 
-    def _create_strategy(self, mode: DatabaseMode) -> DatabaseStrategy:
+    def _create_strategy(self, mode: DBMode) -> DBInterface:
         """工厂方法创建策略实例"""
         strategies = {
-            DatabaseMode.EMBEDDED: EmbeddedStrategy,
-            DatabaseMode.POSTGRES: PostgresStrategy
+            # DBMode.EMBEDDED: EmbeddedStrategy,
+            DBMode.POSTGRES: PostgresStrategy
         }
         return strategies[mode]()
 
@@ -47,17 +53,10 @@ if __name__ == '__main__':
     from config.log import logger
     import asyncio
     async def main():
-        database_config = conf["database"].get("postgresql")
-        database_sqlite_default = DataBasePostgre(
-            database_config["user"],
-            database_config["password"],
-            database_config["host"],
-            database_config["port"],
-            database_config["database"],
-        )
+        database_config = conf["database.postgresql"]
         # Postgres使用
-        pg_adapter = DatabaseAdapter(
-            DatabaseMode.POSTGRES,
+        pg_adapter = DBAdapter(
+            DBMode.POSTGRES,
             database_config
         )
         await pg_adapter.connect()

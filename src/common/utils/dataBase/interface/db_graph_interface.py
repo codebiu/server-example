@@ -1,10 +1,10 @@
 from abc import abstractmethod
 
-from common.utils.dataBase.interface.db_interface import DBInterface
+from common.utils.dataBase.interface.db_base_interface import DBInterface
 
 
 class DBGraphInterface(DBInterface):
-    """关系型数据库抽象基类"""
+    """关系型数据库接口"""
 
     @abstractmethod
     def get_session(self):
