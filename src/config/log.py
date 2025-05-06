@@ -39,7 +39,7 @@ def setup_logging():
 
 
     # 文件log路径 替换%Y-%m-%d
-    files_path_log_error = Path(dir_log) / "error_%Y-%m-%d.log"
+    files_path_log_error = dir_log / "error_%Y-%m-%d.log"
 
     file_handler = CustomTimedRotatingFileHandler(
         files_path_log_error,

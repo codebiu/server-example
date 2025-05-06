@@ -16,11 +16,10 @@ class fileService:
 
     @staticmethod
     async def upload_file(
-        file_upload: UploadFile = File(...), upload_folder=dir_uploaded
+        file_upload: UploadFile = File(...), upload_folder:Path=dir_uploaded
     ):
         """上传文件"""
         try:
-            upload_folder = Path(upload_folder)
             # 检查上传文件夹是否存在，如果不存在则创建
             if not upload_folder.exists():
                 upload_folder.mkdir(parents=True, exist_ok=True)
@@ -68,8 +67,7 @@ class fileService:
 
     # 根据路径获取目录树和文件信息
     @staticmethod
-    def get_directory_tree(file_path: str, upload_folder=dir_uploaded):
-        upload_folder = Path(upload_folder)
+    def get_directory_tree(file_path: str, upload_folder:Path=dir_uploaded):
         # 实际存储路径
         current_dir = upload_folder / file_path
         directory_tree = DirectoryTree.build_directory_tree(current_dir)
@@ -77,8 +75,7 @@ class fileService:
     
     # 根据路径获取单层目录树和文件信息
     @staticmethod
-    def get_dirFile_level_one(file_path: str, upload_folder=dir_uploaded):
-        upload_folder = Path(upload_folder)
+    def get_dirFile_level_one(file_path: str, upload_folder:Path=dir_uploaded):
         # 实际存储路径
         current_dir = upload_folder / file_path
         directory_tree = DirectoryTree.build_dirFile_level_one(current_dir)
@@ -87,9 +84,8 @@ class fileService:
 
     # 根据路径流式打开文件获取内容
     @staticmethod
-    async def open_file_stream(filename: str, upload_folder=dir_uploaded):
+    async def open_file_stream(filename: str, upload_folder:Path=dir_uploaded):
         """打开文件"""
-        upload_folder = Path(upload_folder)
         # 实际存储路径
         current_path = upload_folder / filename
         try:
@@ -118,9 +114,8 @@ class fileService:
 
     # 根据路径打开文件获取内容
     @staticmethod
-    async def open_file(filename: str, upload_folder=dir_uploaded):
+    async def open_file(filename: str, upload_folder:Path=dir_uploaded):
         """打开文件"""
-        upload_folder = Path(upload_folder)
         # 实际存储路径
         current_path = upload_folder / filename
         try:
