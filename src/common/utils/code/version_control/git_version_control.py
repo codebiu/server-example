@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+import shutil
 import git
 from typing import Optional, List, Dict
 from common.utils.code.version_control.version_control_interface import VersionControlInterface
@@ -156,3 +157,48 @@ class GitVersionControl(VersionControlInterface):
                 tofile=file2
             )
         return list(diff)
+    
+    def destroy_repository(self) -> Dict:
+        """
+        销毁Git仓库（删除整个仓库目录）
+        
+        返回:
+            Dict: 包含操作状态的字典
+            {
+                "status": "success"|"error",
+                "message": str,
+                "path": str,
+                "timestamp": str
+            }
+        """
+        try:
+            if not self.repo_path.exists():
+                return {
+                    "status": "error",
+                    "message": "仓库路径不存在",
+                    "path": str(self.repo_path),
+                    "timestamp": datetime.now().isoformat()
+                }
+
+            # 关闭所有可能的文件句柄
+            if self.repo:
+                self.repo.close()
+                self.repo = None
+
+            # 递归删除整个目录
+            shutil.rmtree(self.repo_path)
+
+            return {
+                "status": "success",
+                "message": "仓库删除成功",
+                "path": str(self.repo_path),
+                "timestamp": datetime.now().isoformat()
+            }
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"仓库删除失败: {str(e)}",
+                "path": str(self.repo_path),
+                "timestamp": datetime.now().isoformat()
+            }

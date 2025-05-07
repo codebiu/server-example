@@ -7,8 +7,10 @@ from common.utils.code.version_control.git_version_control import GitVersionCont
 from config.path import dir_test
 
 # 测试常量
-TEST_REPO_URL = "https://github.com/ITILD/git_test.git"
-TEST_BRANCH = "main"
+TEST_REPO_URL = "http://161.189.200.41:8081/knowledge/voiceapi.git"
+TEST_BRANCH = "test_git"
+# TEST_REPO_URL = "https://github.com/ITILD/git_test.git"
+# TEST_BRANCH = "main"
 TEST_COMMIT_MESSAGE = "Test commit message"
 TEST_FILE = "test_file.txt"
 
@@ -27,7 +29,8 @@ class TestGitVersionControlRealRepo:
         """测试克隆/检出真实仓库"""
         # 在此方法中执行克隆操作
         result = self.git_vc.clone_or_checkout(TEST_REPO_URL, TEST_BRANCH)
-        
+        print('###########################################测试克隆/检出真实仓库')
+        print(result)
         assert result["status"] == "success"
         assert result["current_version"]["branch"] == TEST_BRANCH
         assert len(result["current_version"]["id"]) == 40  #
