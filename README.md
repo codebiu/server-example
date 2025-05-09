@@ -169,3 +169,17 @@ coll = COLLECT(
 )
 
 ```
+
+## 测试
+```sh
+pytest
+
+# .vscode\settings.json里添加
+{
+  "python.testing.pytestArgs": [
+    "-v",          // 显示详细输出
+    "-s",          // 禁用输出捕获（关键！）
+    "--log-cli-level=INFO"  // 显示 INFO 及以上日志
+  ]
+}
+```

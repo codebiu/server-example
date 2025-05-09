@@ -2,9 +2,11 @@ from pathlib import Path
 from datetime import datetime
 from svn.remote import RemoteClient
 from svn.local import LocalClient
+from common.utils.code.version_control.svn_tools.svn_ex import SvnEx
 from common.utils.code.version_control.version_control_interface import (
     VersionControlInterface,
 )
+from common.utils.file.dir_manager import DirManager
 
 
 class SVNVersionControl(VersionControlInterface):
@@ -26,7 +28,6 @@ class SVNVersionControl(VersionControlInterface):
                 self.client.info()  # 测试连接
             except Exception:
                 self.client = None
-
 
     def clone_or_checkout(self, repo_url: str, revision: str = None) -> dict:
         """克隆/检出SVN仓库"""
@@ -76,8 +77,7 @@ class SVNVersionControl(VersionControlInterface):
                 "path": str(self.repo_path),
                 "timestamp": datetime.now().isoformat(),
             }
-            
-            
+
     def destroy_repository(self) -> dict:
         """
         销毁SVN仓库（删除整个仓库目录）
@@ -102,12 +102,8 @@ class SVNVersionControl(VersionControlInterface):
 
             # 关闭客户端
             self.client = None
-
-            # 递归删除整个目录
-            import shutil
-
-            shutil.rmtree(self.repo_path)
-
+            # 删除整个目录
+            DirManager.remove_dir(self.repo_path)
             return {
                 "status": "success",
                 "message": "仓库删除成功",
@@ -123,7 +119,6 @@ class SVNVersionControl(VersionControlInterface):
                 "timestamp": datetime.now().isoformat(),
             }
 
-
     def _ensure_client_initialized(self):
         """确保客户端已初始化"""
         if not self.client:
@@ -137,11 +132,10 @@ class SVNVersionControl(VersionControlInterface):
             old_info = self.client.info()
             self.client.update(revision=revision)
             new_info = self.client.info()
-
             changes = []
             if old_info["commit_revision"] != new_info["commit_revision"]:
                 # 获取变更文件列表（SVN需要特殊处理）
-                changes = self._get_changes_between_revisions(
+                changes = self.get_changes_between_revisions(
                     str(old_info["commit_revision"]), str(new_info["commit_revision"])
                 )
 
@@ -162,15 +156,31 @@ class SVNVersionControl(VersionControlInterface):
                 "timestamp": datetime.now().isoformat(),
             }
 
-    def _get_changes_between_revisions(self, old_rev: str, new_rev: str) -> list:
+    def get_changes_between_revisions(self, old_rev: str, new_rev: str) -> list:
         """获取两个版本之间的变更文件列表"""
         try:
-            log = self.client.log_default(revision_from=old_rev, revision_to=new_rev)
+            logs = list(
+                SvnEx.get_svn_logs(
+                    self.repo_path,
+                    revision_from=old_rev,
+                    revision_to=new_rev,
+                    changelist = True,
+                    encoding="utf-8",
+                )
+            )
             changes = []
-            for entry in log:
-                changes.extend(entry.changelist.keys())
-            return list(set(changes))  # 去重
-        except Exception:
+            # 版本修改收集
+            # A：新增文件
+            # M：修改文件
+            # D：删除文件
+            # R：替换文件
+            for log in logs:
+                changes.extend(log.changelist)
+            return changes
+        except Exception as e:
+            print(
+                f"Error getting changes between revisions {old_rev} and {new_rev}: {e}"
+            )
             return []
 
     def commit(self, message: str, files: list[str] = None) -> dict:
@@ -221,7 +231,7 @@ class SVNVersionControl(VersionControlInterface):
                 )
             return versions
         except Exception as e:
-            return []
+            return [str(e)]
 
     def get_remote_versions(self, limit: int = 10) -> list[dict]:
         """获取远程SVN版本历史"""
@@ -230,7 +240,7 @@ class SVNVersionControl(VersionControlInterface):
             # SVN本地和远程日志通常相同
             return self.get_local_versions(limit)
         except Exception as e:
-            return []
+            return [str(e)]
 
     def get_diff(self, version1: str, version2: str) -> list[str]:
         """获取两个SVN版本之间的差异"""
@@ -250,4 +260,16 @@ class SVNVersionControl(VersionControlInterface):
         except Exception as e:
             return [str(e)]
 
- 
+
+if __name__ == "__main__":
+    from config.path import dir_test
+
+    # 测试配置
+    TEST_SVN_URL = "https://A52230321050007/svn/test_svn_project1/"  # 本地SVN服务地址
+    TEST_LOCAL_PATH = dir_test / "svn_test_repo"
+    TEST_BRANCH = "HEAD"
+    TEST_USERNAME = "wx"  # SVN账号
+    TEST_PASSWORD = "123"  # SVN密码
+    svn = SVNVersionControl(TEST_LOCAL_PATH)
+    # print(svn.update())
+    print(svn.update())

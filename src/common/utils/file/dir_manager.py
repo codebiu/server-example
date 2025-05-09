@@ -69,7 +69,6 @@ class DirManager:
         :param overwrite: 是否覆盖已存在的目录
         :return: 新目录的Path对象
         """
-        src_path = Path(src_dir)
         if not dest_dir:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             dest_dir = f"{src_dir}_{timestamp}"
