@@ -87,7 +87,7 @@ if __name__ == "__main__":
     generator = TestGenerate()
 
     # 为指定源码文件生成测试文件
-    test_file = generator.create_file(r"D:\github\codebiu\server-example\src\common\utils\dataBase\impl\db_sqlite_base.py")
+    test_file = generator.create_file(r"D:\github\codebiu\server-example\src\common\utils\code\version_control\svn_version_control.py")
 
     # 输出生成的测试文件路径
     print(f"已创建测试文件：{test_file}")

@@ -5,3 +5,8 @@
 
 
 考虑使用快捷键 qwerdf ctrl-c x v 来使用大模型，可以设定快捷键关联
+
+
+使用 Python 3.10+ 新语法（不使用 typing 依赖）
+中文回答
+添加中文注释,用pathlib尽量替换os

@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import datetime
 import shutil
 import git
-from typing import Optional, List, Dict
 from common.utils.code.version_control.version_control_interface import VersionControlInterface
 
 class GitVersionControl(VersionControlInterface):
@@ -13,7 +12,7 @@ class GitVersionControl(VersionControlInterface):
         self.repo_path = repo_path.absolute()
         self.username = username
         self.password = password
-        self.repo: Optional[git.Repo] = None
+        self.repo: git.Repo = None
         
         # 检查是否已有仓库
         if (self.repo_path / ".git").exists():
@@ -30,7 +29,7 @@ class GitVersionControl(VersionControlInterface):
             return url.replace('://', f'://{self.username}:{self.password}@')
         return url
 
-    def clone_or_checkout(self, repo_url: str, branch: str = None) -> Dict:
+    def clone_or_checkout(self, repo_url: str, branch: str = None) -> dict:
         """克隆/检出Git仓库"""
         if self.repo:
             # 已有仓库，返回提示信息建议更新
@@ -70,7 +69,7 @@ class GitVersionControl(VersionControlInterface):
         if not self.repo:
             raise ValueError("Git仓库未初始化，请先执行clone_or_checkout")
 
-    def update(self) -> Dict:
+    def update(self) -> dict:
         """更新本地Git仓库"""
         self._ensure_repo_initialized()
         
@@ -93,7 +92,7 @@ class GitVersionControl(VersionControlInterface):
         }
 
     # 其他方法保持不变...
-    def commit(self, message: str, files: List[str] = None) -> Dict:
+    def commit(self, message: str, files: list[str] = None) -> dict:
         """提交更改到Git仓库"""
         self._ensure_repo_initialized()
         
@@ -111,7 +110,7 @@ class GitVersionControl(VersionControlInterface):
             "timestamp": datetime.now().isoformat(),
         }
 
-    def get_local_versions(self, limit: int = 10) -> List[Dict]:
+    def get_local_versions(self, limit: int = 10) -> list[dict]:
         """获取本地Git版本历史"""
         self._ensure_repo_initialized()
         return [
@@ -158,12 +157,12 @@ class GitVersionControl(VersionControlInterface):
             )
         return list(diff)
     
-    def destroy_repository(self) -> Dict:
+    def destroy_repository(self) -> dict:
         """
         销毁Git仓库（删除整个仓库目录）
         
         返回:
-            Dict: 包含操作状态的字典
+            dict: 包含操作状态的字典
             {
                 "status": "success"|"error",
                 "message": str,
@@ -202,3 +201,4 @@ class GitVersionControl(VersionControlInterface):
                 "path": str(self.repo_path),
                 "timestamp": datetime.now().isoformat()
             }
+            
