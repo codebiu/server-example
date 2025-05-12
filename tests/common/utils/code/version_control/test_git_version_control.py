@@ -4,11 +4,9 @@ from common.utils.code.version_control.git_version_control import GitVersionCont
 from config.path import dir_test
 
 # 测试常量
-TEST_REPO_URL = "http://161.189.200.41:8081/knowledge/voiceapi.git"
+TEST_REPO_URL = "https://github.com/ITILD/git_test.git"
 TEST_LOCAL_PATH = dir_test / "git_test_repo"
-TEST_BRANCH = "test_git"
-# TEST_REPO_URL = "https://github.com/ITILD/git_test.git"
-# TEST_BRANCH = "main"
+TEST_BRANCH = "main"
 # TEST_COMMIT_MESSAGE = "Test commit message"
 # TEST_FILE = "test_file.txt"
 

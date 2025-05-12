@@ -23,18 +23,22 @@ class TestSVNVersionControl:
         """测试初始化"""
         cls.repo_path = TEST_LOCAL_PATH
         # 初始化SVN客户端
-        cls.svn = SVNVersionControl(
+        cls.svn_version_control = SVNVersionControl(
             repo_path=TEST_LOCAL_PATH, username=TEST_USERNAME, password=TEST_PASSWORD
         )
 
-    def test_checkout_repository(self):
-        """测试首次检出仓库"""
+    def test_checkout_repository(self, revision=TEST_BRANCH):
+        """测试首次检出仓库
+        params:
+            revision: 版本号,默认为HEAD最新版本
+        
+        """
         # 测试强制删除已有仓库
         if self.repo_path.exists():
             DirManager.remove_dir(self.repo_path)
         assert not self.repo_path.exists()
         # 首次检出
-        result = self.svn.clone_or_checkout(repo_url=TEST_SVN_URL, revision=TEST_BRANCH)
+        result = self.svn_version_control.clone_or_checkout(repo_url=TEST_SVN_URL,revision = revision)
         logger.info(
             "###########################################svn测试克隆/检出真实仓库"
         )
@@ -52,23 +56,36 @@ class TestSVNVersionControl:
         if not self.repo_path.exists():
             self.test_checkout_repository()
         # 获取版本1和版本2之间的变更
-        result = self.svn.get_changes_between_revisions(1,12)
+        result = self.svn_version_control.get_changes_between_revisions(0,1)
         logger.info(
             "###########################################svn测试获取两个版本之间的变更"
         )
         logger.info("\nSVN获取版本变更结果: %s", json.dumps(result))
-        assert result["status"] == "success"
-        # assert isinstance(result["changes"], list)
-        # assert len(result["changes"]) > 0
-
-    def test_update_repository(self):
-        """测试更新仓库"""
+        assert len(result) > 0
+        
+    def test_get_diff(self):
+        """测试获取两个版本之间的详细变更"""
         # 确保仓库已检出
         if not self.repo_path.exists():
             self.test_checkout_repository()
+        # 获取版本1和版本2之间的变更
+        result = self.svn_version_control.get_diff(0,12)
+        logger.info(
+            "###########################################svn测试获取两个版本之间的详细变更"
+        )
+        logger.info("\nSVN获取版本变更结果: %s", json.dumps(result))
+        assert len(result) > 0
+
+    def test_update_repository(self):
+        """测试更新仓库"""
+        # 测试强制删除已有仓库
+        if self.repo_path.exists():
+            DirManager.remove_dir(self.repo_path)
+        # 确保0版本仓库已检出
+        self.test_checkout_repository(0)
 
         # 执行更新操作
-        result = self.svn.update()
+        result = self.svn_version_control.update()
         logger.info("###########################################svn测试更新仓库")
         logger.info("\nSVN更新操作结果: %s", json.dumps(result))
 
@@ -87,17 +104,19 @@ class TestSVNVersionControl:
 
     def test_destroy_after_checkout(self):
         """测试删除仓库"""
-        result = self.svn.destroy_repository()
+        result = self.svn_version_control.destroy_repository()
         logger.info("###########################################svn测试删除仓库")
         logger.info("\nSVN删除仓库操作结果: %s", json.dumps(result))
         # 验证更新结果
         assert result["status"] == "success"
         assert not self.repo_path.exists()
+        
+    
 
     @classmethod
     def teardown_class(cls):
         """测试清理"""
-        cls.svn.destroy_repository()
+        cls.svn_version_control.destroy_repository()
         assert not TEST_LOCAL_PATH.exists()
         # 注意：SVN工作副本(.svn目录)需要特殊处理
         logger.info(f"\n测试完成，请手动检查目录：{TEST_LOCAL_PATH}")
@@ -118,7 +137,10 @@ if __name__ == "__main__":
         # tester.test_checkout_repository()
 
         # 3. 测试获取版本变更
-        tester.test_get_changes_between_revisions()
+        # tester.test_get_changes_between_revisions()
+        
+        # 3.1 测试获取版本变更
+        tester.test_get_diff()
 
         # # 4. 测试更新仓库
         # tester.test_update_repository()

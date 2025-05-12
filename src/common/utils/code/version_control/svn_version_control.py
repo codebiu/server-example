@@ -156,7 +156,7 @@ class SVNVersionControl(VersionControlInterface):
                 "timestamp": datetime.now().isoformat(),
             }
 
-    def get_changes_between_revisions(self, old_rev: str, new_rev: str) -> list:
+    def get_changes_between_revisions(self, old_rev: str, new_rev: str,encoding="utf-8") -> list:
         """获取两个版本之间的变更文件列表"""
         try:
             logs = list(
@@ -165,7 +165,7 @@ class SVNVersionControl(VersionControlInterface):
                     revision_from=old_rev,
                     revision_to=new_rev,
                     changelist = True,
-                    encoding="utf-8",
+                    encoding=encoding
                 )
             )
             changes = []
@@ -185,33 +185,34 @@ class SVNVersionControl(VersionControlInterface):
 
     def commit(self, message: str, files: list[str] = None) -> dict:
         """提交更改到SVN仓库"""
-        try:
-            self._ensure_client_initialized()
+        pass
+        # try:
+        #     self._ensure_client_initialized()
 
-            if files:
-                for file in files:
-                    self.client.add(file)
-            else:
-                # SVN没有直接等同于git add -A的命令
-                # 需要手动添加新文件和删除已删除文件
-                self.client.add(".", force=True)
-                # 删除操作需要单独处理
+        #     if files:
+        #         for file in files:
+        #             self.client.add(file)
+        #     else:
+        #         # SVN没有直接等同于git add -A的命令
+        #         # 需要手动添加新文件和删除已删除文件
+        #         self.client.add(".", force=True)
+        #         # 删除操作需要单独处理
 
-            self.client.commit(message=message)
+        #     self.client.commit(message=message)
 
-            info = self.client.info()
-            return {
-                "status": "success",
-                "message": "提交成功",
-                "current_version": str(info["commit_revision"]),
-                "timestamp": datetime.now().isoformat(),
-            }
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": str(e),
-                "timestamp": datetime.now().isoformat(),
-            }
+        #     info = self.client.info()
+        #     return {
+        #         "status": "success",
+        #         "message": "提交成功",
+        #         "current_version": str(info["commit_revision"]),
+        #         "timestamp": datetime.now().isoformat(),
+        #     }
+        # except Exception as e:
+        #     return {
+        #         "status": "error",
+        #         "message": str(e),
+        #         "timestamp": datetime.now().isoformat(),
+        #     }
 
     def get_local_versions(self, limit: int = 10) -> list[dict]:
         """获取本地SVN版本历史"""
@@ -233,6 +234,17 @@ class SVNVersionControl(VersionControlInterface):
         except Exception as e:
             return [str(e)]
 
+
+
+    def get_diff(self, version1: str, version2: str, file_path: str = None) -> list[str]:
+        """获取两个SVN版本之间的差异"""
+        try:
+            self._ensure_client_initialized()
+            diff = SvnEx.diff(self.repo_path,version1, version2)
+            return diff
+        except Exception as e:
+            return [str(e)]
+        
     def get_remote_versions(self, limit: int = 10) -> list[dict]:
         """获取远程SVN版本历史"""
         try:
@@ -241,25 +253,6 @@ class SVNVersionControl(VersionControlInterface):
             return self.get_local_versions(limit)
         except Exception as e:
             return [str(e)]
-
-    def get_diff(self, version1: str, version2: str) -> list[str]:
-        """获取两个SVN版本之间的差异"""
-        try:
-            self._ensure_client_initialized()
-            diff = self.client.diff_summary(version1, version2)
-            return [f"{item.kind}: {item.path}" for item in diff]
-        except Exception as e:
-            return [str(e)]
-
-    def get_file_diff(self, file_path: str, version1: str, version2: str) -> list[str]:
-        """获取文件在两个SVN版本之间的差异"""
-        try:
-            self._ensure_client_initialized()
-            diff = self.client.diff(version1, version2, file_path)
-            return diff.splitlines() if diff else []
-        except Exception as e:
-            return [str(e)]
-
 
 if __name__ == "__main__":
     from config.path import dir_test
