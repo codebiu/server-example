@@ -1,27 +1,23 @@
 # 获取当前脚本文件的绝对路径
-import sys
 from pathlib import Path
+from config.index import conf, path_base
+
+project_path_base = path_base
+# 基础文件路径
+files_path_dict = conf["files_path"]
+dir_uploaded: Path = Path(files_path_dict["uploaded"])
+dir_log: Path = Path(files_path_dict["log"])
+dir_generate: Path = Path(files_path_dict["generate"])
+dir_temp: Path = Path(files_path_dict["temp"])
+dir_test: Path = Path(files_path_dict["test"])
 
 
-# 获取当前脚本文件的绝对路径
-def app_path() -> Path:
-    # build环境 pyinstaller打包后的exe目录
-    if hasattr(sys, "frozen"):  # Python解释器的完整路径
-        path_base = Path(sys.executable).parent  # 使用pyinstaller打包后的exe目录
-    # dev环境
-    else:
-        current_script_path = Path(__file__).resolve()
-        # 获取当前脚本所在目录的父目录的父目录的路径
-        path_base = current_script_path.parent.parent.parent
-    return path_base
-
-
-# 目录根路径
-path_base = app_path()
-print("path_base", path_base)
-
-# log config path 日志配置路径
-path_config = path_base / "source" / "config" / "logging.ini"
-
-
-
+# 默认服务启动就创建创建
+try:
+    dir_uploaded.mkdir(parents=True, exist_ok=True)
+    dir_log.mkdir(parents=True, exist_ok=True)
+    dir_generate.mkdir(parents=True, exist_ok=True)
+    dir_temp.mkdir(parents=True, exist_ok=True)
+    dir_test.mkdir(parents=True, exist_ok=True)
+except Exception as e:
+    print("创建默认目录失败", e)

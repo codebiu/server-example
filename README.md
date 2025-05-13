@@ -15,7 +15,7 @@ conda env list
 conda config --append channels conda-forge
 
 # 初始环境
-conda create -n server_py python=3.10 
+conda create -n server_py python=3.12
 
 # 进入环境
 conda activate server_py
@@ -60,6 +60,10 @@ conda env create -f environment.yml -n test_all
 # 把环境 rcnn 重命名成 tf
 conda create -n tf --clone rcnn
 conda remove -n rcnn --all 
+# 编码
+pip install chardet
+# lsp
+pip install pylyzer
 
 ```
 
@@ -80,7 +84,7 @@ where.exe python # windows
   "configurations": [
     {
       "name": "Python: FastAPI",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
       "args": [
@@ -164,4 +168,18 @@ coll = COLLECT(
     name='code_tm_server_py',
 )
 
+```
+
+## 测试
+```sh
+pytest
+
+# .vscode\settings.json里添加
+{
+  "python.testing.pytestArgs": [
+    "-v",          // 显示详细输出
+    "-s",          // 禁用输出捕获（关键！）
+    "--log-cli-level=INFO"  // 显示 INFO 及以上日志
+  ]
+}
 ```

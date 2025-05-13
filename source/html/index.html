@@ -1,18 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>当前工程介绍</title>
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f7f7f7;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 容器样式 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* 头部样式 */
+        header {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+            padding: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        header img {
+            height: 45px;
+            margin-right: 20px;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        header img:hover {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        /* 内容区域样式 */
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: transparent;
+        }
+
+        .content section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .content section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .content h2 {
+            color: #2e7d32;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 500;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e8f5e9;
+            padding-bottom: 8px;
+        }
+
+        .content p {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .content ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .content ul li {
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background: rgba(232, 245, 233, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid #81c784;
+            transition: all 0.3s ease;
+        }
+
+        .content ul li:hover {
+            background: rgba(232, 245, 233, 0.5);
+            transform: translateX(5px);
+        }
+
+        /* 页脚样式 */
+        footer {
+            background: #f5f5f5;
+            color: #666;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        footer p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        /* 滚动条美化 */
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #c8e6c9;
+            border-radius: 4px;
+        }
+
+        .content::-webkit-scrollbar-thumb:hover {
+            background: #a5d6a7;
+        }
+    </style>
     <link rel="icon" href="assets/img/ion/favicon.ico">
 </head>
 <body>
-    <!-- test -->
-    <div>server_main测试</div>
-    <!-- assets/img/ion/favicon.ico -->
-    <img src="assets/img/ion/favicon.ico" alt="">
-    <!-- script -->
-    <script src="assets/js/index.js"></script>
 
+<div class="container">
+    <!-- 头部，包含Logo -->
+    <header>
+        <img src="assets/img/ion/favicon.ico" alt="工程Logo"> <!-- 替换为你的Logo路径 -->
+        <h1>server_main测试</h1>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <section>
+            <h2>工程概述</h2>
+            <p>欢迎来到当前工程介绍页面。本工程旨在开发一个高效、可靠的系统，用于解决特定领域的问题。以下是工程的详细信息。</p>
+        </section>
+
+        <section>
+            <h2>工程目标</h2>
+            <ul>
+                <li>提高系统的性能和稳定性。</li>
+                <li>优化用户体验，提供直观的界面。</li>
+                <li>实现模块化设计，便于后续扩展和维护。</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>技术栈</h2>
+            <p>本工程采用了以下技术栈：</p>
+            <ul>
+                <li>前端：HTML5, CSS3, JavaScript</li>
+                <li>后端：fastapi  sqlmodel</li>
+                <li>数据库：sqlite kuzu</li>
+                <li>版本控制：Git</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>团队成员</h2>
+            <p>我们的团队由以下成员组成：</p>
+            <ul>
+                <li>前端开发：itild</li>
+                <li>后端开发：itild</li>
+                <li>UI设计：itild</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>联系方式</h2>
+            <p>如果您对本工程有任何疑问或建议，欢迎通过以下方式联系我们：</p>
+            <ul>
+                <li>邮箱：geolifestudy@gmail.com</li>
+                <li>电话：123-456-7890</li>
+            </ul>
+        </section>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 Current Project Team. All rights reserved.</p>
+    </footer>
+</div>
+<!-- script -->
+<script src="assets/js/index.js"></script>
 </body>
 </html>

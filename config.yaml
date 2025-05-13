@@ -1,17 +1,23 @@
 state:
   config_path: config.dev.yaml
+  # 开发状态会输出debug日志
+  is_dev: true
 server:
   host: 0.0.0.0
-  port: 2665
-# files_path: uploaded_files
-files_path: D:\a_source\test
-log: logging.ini
+  port: 2666
+# 系统生成文件
+files_path: 
+  uploaded: D:\a_source\test\uploaded
+  log: D:\a_source\test\log
+  generate: D:\a_source\test\generate
+  temp: D:\a_source\test\temp
+console_log: logging_pro.ini
 # 加密key jwt
 security:
   # 加密算法
   algorithm: HS256
   # 加密密钥
-  secret: 1111111
+  secret: 1
   # 加密过期时间miniutes
   expire: 30
 database:
@@ -20,19 +26,19 @@ database:
     # host: 127.0.0.1
     # port: 5432
     # user: root
-    # password: root
-    # database: test
+    # password: 1
+    # database: 1
   # 嵌入式关系数据库
-  # sqlite:
-    # path: ./data.db
-    # name: test
+  sqlite:
+    path: D:\data\db\sqlite3\data.db
+    name: test
   # 图数据库
   neo4j:
     host: 127.0.0.1
     port: 7687
     user: neo4j
-    password: 1111111
-    database: neo4j
+    password: 1
+    database: 1
   # 嵌入式图数据库
   # kuzu:
     # host: 127.0.0.1
@@ -42,9 +48,18 @@ database:
     # database: test
 ai:
   openai:
-    api_key: 1111111
-    chat_model: gpt-4o
+    api_key: 1
+    chat_model: gpt-4o-mini
     embedding_model: text-embedding-3-large
     chat_url: https://api.openai.com/v1/chat/completions
     embedding_url: https://api.openai.com/v1/embeddings
+  aihubmix:
+    api_key: 1
+    chat_model: gpt-4o-mini
+    embedding_model: text-embedding-3-large
+    chat_url: https://aihubmix.com/v1/chat/completions
+    embedding_url: https://aihubmix.com/v1/embeddings
+  aliyun:
+    api_key: 1
+    free_model: qwen
   
