@@ -81,13 +81,41 @@ class TestGenerate:
         module_path = ".".join(parts[src_index:-1] + (src_path.stem,))
         return module_path
     
+    def create_all(self, check_dir: str | Path) -> None:
+        """遍历检查目录并创建缺失的测试文件
+        
+        Args:
+            check_dir (str|Path): 要检查的目录路径
+        """
+        check_dir = Path(check_dir).absolute()
+        
+        # 确保检查目录在源码目录下
+        if self.from_dir not in check_dir.parts:
+            print(f"警告：检查目录{check_dir}不在{self.from_dir}下")
+            return
+            
+        # 遍历目录下的所有.py文件
+        for src_file in check_dir.rglob("*.py"):
+            # 跳过__init__.py和测试文件
+            if src_file.name.startswith("__") or src_file.name.startswith("test_"):
+                continue
+                
+            # 获取对应的测试文件路径
+            try:
+                test_path = self._get_test_path(src_file)
+                if not test_path.exists():
+                    print(f"创建测试文件: {test_path}")
+                    self.create_file(src_file)
+            except ValueError as e:
+                print(f"跳过文件{src_file}: {e}")
     
 if __name__ == "__main__":
     # 创建测试生成器实例
     generator = TestGenerate()
 
     # 为指定源码文件生成测试文件
-    test_file = generator.create_file(r"D:\github\codebiu\server-example\src\common\utils\file\dir_manager.py")
+    test_file = generator.create_all(r"D:\a0_wx\codebiu\server-example\src\common\utils\dataBase")
+    # test_file = generator.create_file(r"D:\github\codebiu\server-example\src\common\utils\file\dir_manager.py")
 
     # 输出生成的测试文件路径
-    print(f"已创建测试文件：{test_file}")
+    # print(f"已创建测试文件：{test_file}")
