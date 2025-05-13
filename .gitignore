@@ -13,6 +13,3 @@ package-lock.json
 
 # 运行时静态文件
 run_create_source
-
-# 运行时静态文件
-run_create_source
