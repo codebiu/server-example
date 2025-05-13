@@ -75,6 +75,7 @@ if __name__ == '__main__':
     # 获取配置项 __getitem__
     print(config['server.host'])  # 输出: 0.0.0.0
     print(config.get('ai.openai.api_key'))  # 输出: 1
+    print(config.get('ai.openai')) 
 
     # 修改配置项
     # config['server.port'] = 3000

@@ -348,10 +348,7 @@ if __name__ == "__main__":
     async def main():
         """示例用法"""
         # 从配置中获取API设置
-        from config.index import conf
-        
-        openai_config = conf["ai"]["openai"]
-        
+        openai_config = conf["ai.openai"]
         client = OpenAIClient(
             api_key=openai_config["api_key"],
             chat_url=openai_config["chat_url"],
