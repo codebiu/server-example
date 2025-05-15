@@ -49,7 +49,8 @@ class AILangChainFactory:
 if __name__ == "__main__":
     import asyncio
     from config.index import conf
-
+    from langchain.globals import set_debug
+    set_debug(True)
     openai_config = conf["ai.openai.gpt-4o-mini"]
     # ollama_qwen_config = conf["ai.ollama.qwen3_4b"]
     ollama_qwen_config = conf["ai.ollama.qwen2_5_1_5b"]
@@ -81,8 +82,26 @@ if __name__ == "__main__":
         
         
         # ollama 测试
-        llm = await AILangChainFactory.create_llm(qwen_model_config)
-        result = await llm.ainvoke("1+1=?")
-        print(result.content)
+        # llm = await AILangChainFactory.create_llm(qwen_model_config)
+        # result = await llm.ainvoke("1+1=?")
+        # print(result.content)
+        # streaming_chain = await AILangChainFactory.create_chain(
+        #     qwen_model_config,
+        #     prompt_template="分步骤说明{concept}的应用场景：",
+        # )
+        # input = {"concept": "langchain"}
+        # info = await streaming_chain.ainvoke(input)
+        # print(info)
+        
+        # 2. 异步流式调用
+        streaming_chain = await AILangChainFactory.create_chain(
+            qwen_model_config,
+            prompt_template="3步计算{concept}的结果：",
+            streaming=True,
+        )
+        input = {"concept": "2+2"}
+        async for chunk in streaming_chain.astream(input):
+            # yield chunk.content
+            print(chunk.content, end="|", flush=True)
 
     asyncio.run(main())
