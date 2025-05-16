@@ -30,7 +30,7 @@ class DBBaseInterface(ABC):
         raise NotImplementedError("子类必须实现 connect 方法")
 
     @abstractmethod
-    def is_connected(self):
+    async def is_connected(self):
         """
         检查当前数据库连接状态。
 
@@ -40,7 +40,7 @@ class DBBaseInterface(ABC):
         raise NotImplementedError("子类必须实现 is_connected 方法")
 
     @abstractmethod
-    def reconnect(self):
+    async def reconnect(self):
         """
         重新连接数据库。
 
@@ -50,7 +50,7 @@ class DBBaseInterface(ABC):
         raise NotImplementedError("子类必须实现 reconnect 方法")
 
     @abstractmethod
-    def disconnect(self):
+    async def disconnect(self):
         """
         断开数据库连接。
 
@@ -59,7 +59,7 @@ class DBBaseInterface(ABC):
         raise NotImplementedError("子类必须实现 disconnect 方法")
 
     @abstractmethod
-    def get_info(self):
+    async def get_info(self):
         """
         获取数据库相关信息。
 

@@ -31,7 +31,8 @@ def setup_logging():
     # 控制台log
     console_handler = ColoredConsoleHandler()
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.DEBUG)
+    # console_handler.setLevel(logging.DEBUG)
+    console_handler.setLevel(logging.INFO)
     # 开发状态下，输出控制台log
     if is_dev:
         logger.addHandler(console_handler)
