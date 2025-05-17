@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessageChunk
 import re
 
-from langchain_core.runnables import RunnableGenerator
+from langchain_core.runnables import RunnableGenerator,RunnableSequence
 
 # 自动处理非流式
 def remove_think_tags_parser(chunks: list[AIMessageChunk]) -> Generator[AIMessageChunk]:
