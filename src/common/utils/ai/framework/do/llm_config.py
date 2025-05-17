@@ -5,9 +5,11 @@ from pydantic import BaseModel, Field, field_validator
 class ModelConfig(BaseModel):
     model: str = Field(..., description="模型标识名称")
     # 配置
+    input_tokens: int = Field(8192, description="输入最大token数")
+    out_tokens: int = Field(8192, gt=0, description="生成最大token数/向量化模型是维度")
     temperature: float = Field(0.5, ge=0, le=2, description="生成温度系数")
-    max_tokens: int = Field(8192, gt=0, description="最大生成token数")
     timeout: int = Field(60, gt=0, description="请求超时时间(秒)")
+
 
 
 
