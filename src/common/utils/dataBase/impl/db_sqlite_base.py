@@ -1,7 +1,7 @@
 from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker,Session
 
 # 防止注入
 from sqlalchemy import text
@@ -13,7 +13,7 @@ class DBSqliteBase(DBBaseInterface):
 
     url: str | None = None
     engine = None
-    session_factory = None
+    session_factory = sessionmaker |None 
 
     def __init__(self, db_path: str | Path):
         """初始化 SQLite 数据库连接
@@ -34,7 +34,7 @@ class DBSqliteBase(DBBaseInterface):
 
     async def is_connected(self) -> bool:
         """检查连接状态"""
-        return bool(self.engine and not await self.engine.disposed)
+        return bool(self.engine and not await self.engine.dispose())
 
     async def reconnect(self):
         """重新连接数据库"""
@@ -59,6 +59,7 @@ class DBSqliteBase(DBBaseInterface):
 
     async def get_session(self):
         """获取异步会话"""
+        session: AsyncSession
         async with self.session_factory() as session:
             yield session
 
@@ -71,7 +72,7 @@ class DBSqliteBase(DBBaseInterface):
                 ]
             )
 
-    async def execute(self, sql: str, params: dict | None = None):
+    async def execute(self, sql: str):
         """执行原生SQL
 
         Args:
@@ -81,12 +82,15 @@ class DBSqliteBase(DBBaseInterface):
         Returns:
             SELECT 返回结果列表，其他操作返回影响行数
         """
+        session: AsyncSession
         async with self.session_factory() as session:
-            result = await session.execute(text(sql), params or {})
+            result = await session.exec(text(sql))
             await session.commit()
 
-            if sql.strip().upper().startswith("SELECT"):
-                return [dict(row._mapping) for row in result]
+        # 处理不同SQL类型的返回结果
+        if sql.strip().upper().startswith("SELECT"):
+            return result.fetchall()
+        else:
             return result.rowcount
 
     async def _get_table_list(self) -> list[str]:
