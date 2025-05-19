@@ -41,11 +41,12 @@ class TestAILangChainFactory:
             qusetion_test_use = qusetion_test_no_think
         # 测试语言模型
         if chat_config_obj:
-            llm = await AILangChainFactory.create_llm(chat_config_obj)
-            chain = await AILangChainFactory.create_chain(
+            llm = AILangChainFactory.create_llm(chat_config_obj)
+            chain = AILangChainFactory.create_chain(
                 chat_config_obj,
                 prompt_template=question_chain_prompt_use,
                 streaming=True,
+                no_think=no_think,
             )
             # 简单llm同步调用
             logger.info("1.简单llm异步调用:")
@@ -73,7 +74,7 @@ class TestAILangChainFactory:
 
         # 测试向量模型
         if embedding_config_obj:
-            embeddings = await AILangChainFactory.create_embeddings(
+            embeddings = AILangChainFactory.create_embeddings(
                 embedding_config_obj
             )
             embeddings_result = await embeddings.aembed_query(qusetion_test_use)

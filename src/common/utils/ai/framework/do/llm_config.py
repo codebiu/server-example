@@ -4,6 +4,9 @@ from pydantic import BaseModel, Field, field_validator
 # 模型配置对象
 class ModelConfig(BaseModel):
     model: str = Field(..., description="模型标识名称")
+    # 成本
+    pay_in : float = Field(0.0, ge=0, description="模型调用成本")
+    pay_out: float = Field(0.0, ge=0, description="模型输出成本")
     # 配置
     input_tokens: int = Field(8192, description="输入最大token数")
     out_tokens: int = Field(8192, gt=0, description="生成最大token数/向量化模型是维度")
@@ -22,6 +25,7 @@ class OpenAIConfig(ModelConfig):
 class OllamaConfig(ModelConfig):
     """Ollama本地模型配置"""
     url: str | None = Field(None, description="API基础URL")
+    cache: bool = Field(False, description="是否缓存")
     
 class AWSConfig(ModelConfig):
     """AWS模型配置"""

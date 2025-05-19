@@ -1,8 +1,12 @@
+# 接口类
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import BaseChatModel
+# 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_aws import ChatBedrock
+from langchain_aws import BedrockEmbeddings, ChatBedrock
 import numpy as np
 
 from common.utils.ai.framework.do.llm_config import (
@@ -12,8 +16,9 @@ from common.utils.ai.framework.do.llm_config import (
     OllamaConfig,
 )
 from common.utils.ai.framework.interface.ai_factory import AIFactory
+from common.utils.ai.framework.langchain_ex.think_parser import NoThinkTagsParser
 # https://docsbot.ai/models/compare/gpt-4o/gpt-4-1-mini
-
+# https://python.langchain.com/docs/concepts/
 
 class AILangChainFactory(AIFactory):
     """
@@ -22,18 +27,20 @@ class AILangChainFactory(AIFactory):
     """
 
     @classmethod
-    async def create_llm(cls,model_config: ModelConfig, streaming: bool = True) -> object:
+    def create_llm(
+        cls, model_config: ModelConfig, streaming: bool = True
+    ) -> BaseChatModel:
         """
         根据配置创建对应的LLM实例
 
-        参数:
+        parameters:
             model_config: 模型配置对象，决定创建哪种LLM实例
             streaming: 是否启用流式响应（默认True）
 
-        返回:
+        returns:
             对应的LLM实例对象
 
-        异常:
+        catch:
             ValueError: 当模型类型不支持时抛出
         """
         if isinstance(model_config, OllamaConfig):
@@ -61,17 +68,17 @@ class AILangChainFactory(AIFactory):
                 raise ValueError(f"Unsupported model type: {type(model_config)}")
 
     @classmethod
-    async def create_embeddings(cls,model_config: ModelConfig) -> object:
+    def create_embeddings(cls, model_config: ModelConfig) -> Embeddings:
         """
         创建嵌入模型实例
 
-        参数:
+        parameters:
             model_config: 模型配置对象
 
-        返回:
+        returns:
             对应的嵌入模型实例对象
 
-        异常:
+        catch:
             ValueError: 当模型类型不支持时抛出
         """
         if isinstance(model_config, OllamaConfig):
@@ -79,11 +86,11 @@ class AILangChainFactory(AIFactory):
             return OllamaEmbeddings(model=model_config.model, base_url=model_config.url)
         elif isinstance(model_config, AWSConfig):
             # 创建AWS Bedrock嵌入模型实例
-            return ChatBedrock(
-                model=model_config.model,
+            return BedrockEmbeddings(
+                model_id=model_config.model,
                 aws_access_key_id=model_config.aws_access_key_id,
                 aws_secret_access_key=model_config.aws_secret_access_key,
-                region=model_config.region_name,
+                region_name=model_config.region_name,
             )
         else:
             # 默认创建OpenAI兼容嵌入模型实例
@@ -97,17 +104,33 @@ class AILangChainFactory(AIFactory):
                 raise ValueError(f"Unsupported model type: {type(model_config)}")
 
     @classmethod
-    async def create_chain(
-        cls,config: ModelConfig, prompt_template: str, streaming: bool = True
+    def create_chain(
+        cls,
+        config: ModelConfig,
+        prompt_template: str,
+        streaming: bool = True,
+        no_think: bool = False,
     ) -> object:
         """
         创建基础LLM处理链（Prompt + LLM + Parser）
+
+        parameters:
+            config: 模型配置对象
+            prompt_template: 提示模板字符串
+            streaming: 是否启用流式响应（默认True）
+            no_think: 是否启用no_think解析器（默认False 简单文本化解析器）
         """
-        llm = await cls.create_llm(config, streaming=streaming)
+        llm = cls.create_llm(config, streaming=streaming)
         prompt = ChatPromptTemplate.from_template(prompt_template)
-        # from_role_strings 
-        str_output_parser = StrOutputParser()
-        return prompt | llm | str_output_parser
+        # to_str
+        str_parser = None
+        if no_think:
+            # 考虑到no_think标签解析器
+            str_parser = NoThinkTagsParser()
+        else:
+            str_parser = StrOutputParser()
+        return prompt | llm | str_parser
+
 
 # 使用示例
 if __name__ == "__main__":
@@ -133,8 +156,8 @@ if __name__ == "__main__":
         answer = "2"
         if chat_config_obj:
             # llm
-            llm = await AILangChainFactory.create_llm(chat_config_obj)
-            streaming_chain = await AILangChainFactory.create_chain(
+            llm = AILangChainFactory.create_llm(chat_config_obj)
+            streaming_chain = AILangChainFactory.create_chain(
                 chat_config_obj,
                 prompt_template=question_chain_prompt,
                 streaming=True,
@@ -154,8 +177,10 @@ if __name__ == "__main__":
             info_chain_ainvoke = await streaming_chain.ainvoke(question_chain_input)
             logger.info(f"异步非流式调用: {info_chain_ainvoke}")
         if embedding_config_obj:
-        # embedding
-            embeddings = await AILangChainFactory.create_embeddings(embedding_config_obj)
+            # embedding
+            embeddings = AILangChainFactory.create_embeddings(
+                embedding_config_obj
+            )
             embeddings_result = await embeddings.aembed_query(qusetion_test)
             embeddings_info = LLMUtils.embeddings_info(embeddings_result)
             logger.info(f"向量模型信息: {embeddings_info}")
