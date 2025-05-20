@@ -7,9 +7,6 @@ class ChainFactory:
         self.llm = llm
         self.embedding =embedding
         
-    # def 
-    
-    
     def get_template_chain(self):
         # 1. 定义单个笑话的数据结构
         class Joke(BaseModel):

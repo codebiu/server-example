@@ -1,10 +1,11 @@
 from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.orm import sessionmaker,Session
+from sqlalchemy.orm import sessionmaker, Session
 
 # 防止注入
 from sqlalchemy import text
+from common.utils.dataBase.do.db_config import SqliteConfig
 from common.utils.dataBase.interface.db_base_interface import DBBaseInterface
 
 
@@ -13,17 +14,23 @@ class DBSqliteBase(DBBaseInterface):
 
     url: str | None = None
     engine = None
-    session_factory = sessionmaker |None 
+    session_factory = sessionmaker | None
 
-    def __init__(self, db_path: str | Path):
+    def __init__(self, sqliteConfig: SqliteConfig):
         """初始化 SQLite 数据库连接
 
         Args:
             db_path: 数据库文件路径，可以是字符串或 Path 对象
         """
         # 使用 pathlib 规范化路径
-        db_path = Path(db_path) if isinstance(db_path, str) else db_path
-        self.url = f"sqlite+aiosqlite:///{db_path.absolute()}"
+        try:
+            self.db_path = Path(
+                sqliteConfig.dir + sqliteConfig.database + sqliteConfig.suffix
+            )
+            self.url = f"sqlite+aiosqlite:///{self.db_path.absolute()}"
+        except Exception as e:
+            raise Exception(f"数据库路径错误: {e}")
+        
 
     def connect(self):
         """建立数据库连接"""
@@ -100,4 +107,9 @@ class DBSqliteBase(DBBaseInterface):
 
         sql = "SELECT name FROM sqlite_master WHERE type='table'"
         tables = await self.execute(sql)
-        return [table["name"] for table in tables]
+        # 去除""
+        result = []
+        for table in tables:
+            if table[0]:
+                result.append(table[0])
+        return result

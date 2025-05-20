@@ -35,7 +35,7 @@ class TestAILangChainFactory:
         # 测试语言模型
         if chat_config_obj:
             llm = AILangChainFactory.create_llm(chat_config_obj)
-            chain = AILangChainFactory.create_chain(
+            chain = AILangChainFactory.create_chain_base(
                 chat_config_obj,
                 prompt_template=question_chain_prompt_use,
                 streaming=True

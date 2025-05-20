@@ -103,11 +103,11 @@ class AILangChainFactory(AIFactory):
                 raise ValueError(f"Unsupported model type: {type(model_config)}")
 
     @classmethod
-    def create_chain(
+    def create_llm_str(
         cls,
         config: ModelConfig,
         streaming: bool = True,
-    ) -> object:
+    ) -> BaseChatModel:
         """
         创建基础LLM处理链（Prompt + LLM + Parser）
 
@@ -133,7 +133,7 @@ class AILangChainFactory(AIFactory):
         config: ModelConfig,
         prompt_template: str,
         streaming: bool = True
-    ) -> object:
+    ) -> BaseChatModel:
         """
         创建基础LLM处理链（Prompt + LLM + Parser）
 
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     from common.utils.ai.framework.llm_utils import LLMUtils
     from langchain.globals import set_debug
 
-    set_debug(True)
+    # set_debug(True)
     async def main():
         # openai_config_dict = conf["ai.openai.chat_model_mini"]
         # ollama_qwen_config_dict = conf["ai.ollama.qwen3_4b"]
@@ -183,8 +183,9 @@ if __name__ == "__main__":
         answer = "2"
         if chat_config_obj:
             # llm
-            llm = AILangChainFactory.create_llm(chat_config_obj)
-            streaming_chain = AILangChainFactory.create_chain(
+            # llm = AILangChainFactory.create_llm(chat_config_obj)
+            llm = AILangChainFactory.create_llm_str(chat_config_obj)
+            streaming_chain = AILangChainFactory.create_chain_base(
                 chat_config_obj,
                 # prompt_template=question_chain_prompt,
                 prompt_template=question_chain_prompt,
@@ -195,11 +196,11 @@ if __name__ == "__main__":
                 {"role":"system", "content": "请错误的回答问题,结果默认加10"},
                 {"role":"user", "content": "2+1=?/no_think"},
             ]
-            info_invoke = llm.invoke(question_chain_input)
-            logger.info(f"简单llm同步调用: {info_invoke}")
+            # info_invoke = llm.invoke(question_chain_input)
+            # logger.info(f"简单llm同步调用: {info_invoke}")
             # # 2. 简单llm异步调用
-            # info_ainvoke = await llm.ainvoke(qusetion_test)
-            # logger.info(f"简单llm异步调用: {info_ainvoke}")
+            info_ainvoke = await llm.ainvoke(question_chain_input)
+            logger.info(f"简单llm异步调用: {info_ainvoke}")
             # # 3. 异步流式调用
             # logger.info("异步流式调用:")
             # question_chain_input = [
