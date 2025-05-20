@@ -12,7 +12,7 @@ class ModelConfig(BaseModel):
     out_tokens: int = Field(8192, gt=0, description="生成最大token数/向量化模型是维度")
     temperature: float = Field(0.5, ge=0, le=2, description="生成温度系数")
     timeout: int = Field(60, gt=0, description="请求超时时间(秒)")
-
+    no_think: bool = Field(False, description="是否禁用思考 默认否不考虑")
 
 
 

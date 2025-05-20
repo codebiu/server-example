@@ -1,4 +1,5 @@
 from langchain_core.output_parsers import BaseTransformOutputParser
+from langchain_core.runnables import RunnableLambda
 
 class NoThinkTagsParser(BaseTransformOutputParser):
     """
@@ -52,6 +53,17 @@ class NoThinkTagsParser(BaseTransformOutputParser):
         
         # 默认情况：无标签内容
         return buffer, ""
+    
+# 输入
+# 定义处理函数：在最后一个消息的 content 后添加 "/no_think"
+def add_no_think(input_data):
+    messages = input_data.copy()  # 避免直接修改原数据
+    if messages and isinstance(messages[-1], dict) and "content" in messages[-1]:
+        messages[-1]["content"] = f"{messages[-1]['content']} /no_think"
+    return messages
+
+# 封装为 RunnableLambda
+add_no_think_runnable = RunnableLambda(add_no_think)
 
 if __name__ == "__main__":
     import asyncio

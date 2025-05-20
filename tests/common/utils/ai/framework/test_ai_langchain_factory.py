@@ -19,8 +19,6 @@ from langchain.globals import set_debug
 # 开关debug中间件
 # set_debug(True)
 qusetion_test = "直接回答结果数字 1+8=?"
-qusetion_test_no_think = "直接回答结果数字 1+8=? /no_think"
-question_chain_prompt_no_think = "2句话描述计算{concept}的结果：/no_think"
 question_chain_prompt = "2句话描述计算{concept}的结果"
 question_chain_input = {"concept": "1+8"}
 
@@ -31,22 +29,16 @@ class TestAILangChainFactory:
     async def model_try(
         chat_config_obj: ModelConfig = None,
         embedding_config_obj: ModelConfig = None,
-        no_think: bool = False,
     ):
         question_chain_prompt_use = question_chain_prompt
         qusetion_test_use = qusetion_test
-        # 关闭思考
-        if no_think:
-            question_chain_prompt_use = question_chain_prompt_no_think
-            qusetion_test_use = qusetion_test_no_think
         # 测试语言模型
         if chat_config_obj:
             llm = AILangChainFactory.create_llm(chat_config_obj)
             chain = AILangChainFactory.create_chain(
                 chat_config_obj,
                 prompt_template=question_chain_prompt_use,
-                streaming=True,
-                no_think=no_think,
+                streaming=True
             )
             # 简单llm同步调用
             logger.info("1.简单llm异步调用:")
@@ -96,7 +88,7 @@ class TestAILangChainFactory:
         # 测试
         await TestAILangChainFactory.model_try(
             OllamaConfig(**conf["ai.ollama.chat_model"]),
-            OllamaConfig(**conf["ai.ollama.embedding"]),True
+            OllamaConfig(**conf["ai.ollama.embedding"])
         )
         # await TestAILangChainFactory.model_try(
         #     OllamaConfig(**conf["ai.ollama.chat_model_mini"])

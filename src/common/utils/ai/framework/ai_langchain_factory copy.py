@@ -15,10 +15,20 @@ from common.utils.ai.framework.do.llm_config import (
     OllamaConfig,
 )
 from common.utils.ai.framework.interface.ai_factory import AIFactory
-from common.utils.ai.framework.langchain_ex.think_parser import NoThinkTagsParser,add_no_think_runnable
+from common.utils.ai.framework.langchain_ex.think_parser import NoThinkTagsParser
 # https://docsbot.ai/models/compare/gpt-4o/gpt-4-1-mini
 # https://python.langchain.com/docs/concepts/
+from langchain_core.runnables import RunnableLambda
 
+# 定义处理函数：在最后一个消息的 content 后添加 "/no_think"
+def add_no_think(input_data):
+    messages = input_data.copy()  # 避免直接修改原数据
+    if messages and isinstance(messages[-1], dict) and "content" in messages[-1]:
+        messages[-1]["content"] = f"{messages[-1]['content']} /no_think"
+    return messages
+
+# 封装为 RunnableLambda
+add_no_think_runnable = RunnableLambda(add_no_think)
 class AILangChainFactory(AIFactory):
     """
     AI模型工厂类，用于创建不同类型的LLM实例和嵌入模型实例
@@ -106,32 +116,6 @@ class AILangChainFactory(AIFactory):
     def create_chain(
         cls,
         config: ModelConfig,
-        streaming: bool = True,
-    ) -> object:
-        """
-        创建基础LLM处理链（Prompt + LLM + Parser）
-
-        parameters:
-            config: 模型配置对象
-            prompt_template: 提示模板字符串
-            streaming: 是否启用流式响应（默认True）
-            no_think: 是否启用no_think解析器（默认False 简单文本化解析器）
-        """
-        llm = cls.create_llm(config, streaming=streaming)
-        # to_str
-        if config.no_think:
-            # 考虑到no_think标签解析器
-            str_parser = NoThinkTagsParser()
-            return add_no_think_runnable | llm | str_parser
-        else:
-            str_parser = StrOutputParser()
-            return llm | str_parser
-    
-    @classmethod
-    def create_chain_base(
-        cls,
-        config: ModelConfig,
-        prompt_template: str,
         streaming: bool = True
     ) -> object:
         """
@@ -149,12 +133,11 @@ class AILangChainFactory(AIFactory):
         str_parser = None
         if config.no_think:
             # 考虑到no_think标签解析器 qwen3
-            prompt_template += " /no_think"
             str_parser = NoThinkTagsParser()
         else:
             str_parser = StrOutputParser()
-        prompt = ChatPromptTemplate.from_template(prompt_template)
-        return prompt | llm | str_parser
+
+        return add_no_think_runnable | llm | str_parser
 
 
 # 使用示例
@@ -177,7 +160,7 @@ if __name__ == "__main__":
         # embedding_config_obj = OpenAIConfig(**conf["ai.openai.embedding"])
         # source
         qusetion_test = "直接回答结果数字 1+1=?"
-        question_chain_prompt = "根据输入回答问题:{concept}"
+        question_chain_prompt = "三句话描述计算{concept}的结果"
         question_chain_prompt_no_think = "三句话描述计算{concept}的结果：/no_think"
         question_chain_input = {"concept": "1+1"}
         answer = "2"
@@ -186,17 +169,15 @@ if __name__ == "__main__":
             llm = AILangChainFactory.create_llm(chat_config_obj)
             streaming_chain = AILangChainFactory.create_chain(
                 chat_config_obj,
-                # prompt_template=question_chain_prompt,
-                prompt_template=question_chain_prompt,
                 streaming=True,
             )
             # # 1. 简单llm同步调用
             question_chain_input = [
-                {"role":"system", "content": "请错误的回答问题,结果默认加10"},
-                {"role":"user", "content": "2+1=?/no_think"},
+                {"role": "system", "content": "请回答问题时,同时计算输出结果+10的值"},
+                {"role":"user", "content": "2+1=?"},
             ]
-            info_invoke = llm.invoke(question_chain_input)
-            logger.info(f"简单llm同步调用: {info_invoke}")
+            # info_invoke = llm.invoke(question_chain_input)
+            # logger.info(f"简单llm同步调用: {info_invoke}")
             # # 2. 简单llm异步调用
             # info_ainvoke = await llm.ainvoke(qusetion_test)
             # logger.info(f"简单llm异步调用: {info_ainvoke}")
@@ -206,9 +187,9 @@ if __name__ == "__main__":
             #     {"role":"system", "content": "请错误的回答问题,结果默认加10"},
             #     {"role":"user", "content": "2+1=?"},
             # ]
-            # async for chunk in streaming_chain.astream(question_chain_input):
-            #     # logger.info(f"{chunk.content}|")
-            #     logger.info(f"{chunk}|")
+            async for chunk in streaming_chain.astream(question_chain_input):
+                # logger.info(f"{chunk.content}|")
+                logger.info(f"{chunk}|")
         #     # 3. 异步非流式调用
         #     info_chain_ainvoke = await streaming_chain.ainvoke(question_chain_input)
         #     logger.info(f"异步非流式调用: {info_chain_ainvoke}")
