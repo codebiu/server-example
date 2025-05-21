@@ -1,6 +1,10 @@
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
+
+# 防止注入
+from sqlalchemy import text
 from common.utils.dataBase.do.db_config import PostgresConfig
 from common.utils.dataBase.interface.db_base_interface import DBBaseInterface
 
@@ -74,8 +78,9 @@ class DBPostgreBase(DBBaseInterface):
         Returns:
             SELECT 返回结果列表，其他操作返回影响行数
         """
+        session: AsyncSession
         async with self.session_factory() as session:
-            result = await session.execute(text(sql))
+            result = await session.exec(text(sql))
             await session.commit()
 
             if sql.strip().upper().startswith("SELECT"):
