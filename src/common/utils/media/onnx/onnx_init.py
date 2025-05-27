@@ -48,10 +48,10 @@ if __name__ == "__main__":
     path_model = "test-data/ai_model/linear_regression_fixed.onnx"
     
     #训练
-    # X, y = train_data()
-    # model = train_model(X, y)
-    # onnx_model = onnx_convert(model,X)
-    # onnx_save(path_model,onnx_model)
+    X, y = train_data()
+    model = train_model(X, y)
+    onnx_model = onnx_convert(model,X)
+    onnx_save(path_model,onnx_model)
     
     # 推理
     # 定义输入数据

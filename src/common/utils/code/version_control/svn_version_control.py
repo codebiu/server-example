@@ -71,7 +71,7 @@ class SVNVersionControl(VersionControlInterface):
                     "timestamp": datetime.now().isoformat(),
                 }
         except Exception as e:
-            return {
+            raise {
                 "status": "error",
                 "message": str(e),
                 "path": str(self.repo_path),
@@ -112,7 +112,7 @@ class SVNVersionControl(VersionControlInterface):
             }
 
         except Exception as e:
-            return {
+            raise {
                 "status": "error",
                 "message": f"仓库删除失败: {str(e)}",
                 "path": str(self.repo_path),
@@ -149,7 +149,7 @@ class SVNVersionControl(VersionControlInterface):
                 "timestamp": datetime.now().isoformat(),
             }
         except Exception as e:
-            return {
+            raise {
                 "status": "error",
                 "message": str(e),
                 "path": str(self.repo_path),
@@ -178,10 +178,7 @@ class SVNVersionControl(VersionControlInterface):
                 changes.extend(log.changelist)
             return changes
         except Exception as e:
-            print(
-                f"Error getting changes between revisions {old_rev} and {new_rev}: {e}"
-            )
-            return []
+            raise f"Error getting changes between revisions {old_rev} and {new_rev}: {e}"
 
     def commit(self, message: str, files: list[str] = None) -> dict:
         """提交更改到SVN仓库"""
@@ -232,7 +229,7 @@ class SVNVersionControl(VersionControlInterface):
                 )
             return versions
         except Exception as e:
-            return [str(e)]
+            raise [str(e)]
 
 
 
@@ -243,7 +240,7 @@ class SVNVersionControl(VersionControlInterface):
             diff = SvnEx.diff(self.repo_path,version1, version2)
             return diff
         except Exception as e:
-            return [str(e)]
+            raise [str(e)]
         
     def get_remote_versions(self, limit: int = 10) -> list[dict]:
         """获取远程SVN版本历史"""
@@ -252,7 +249,7 @@ class SVNVersionControl(VersionControlInterface):
             # SVN本地和远程日志通常相同
             return self.get_local_versions(limit)
         except Exception as e:
-            return [str(e)]
+            raise [str(e)]
 
 if __name__ == "__main__":
     from config.path import dir_test
