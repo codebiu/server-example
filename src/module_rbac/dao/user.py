@@ -29,8 +29,8 @@ class UserDao:
         user_to_upadte:User = await session.get(User, user.id)
         user_to_upadte.name = user.name
         user_to_upadte.email = user.email
-        session.add(user_to_upadte)
-        await session.commit()  # 提交事务
+        session.add(user_to_upadte) # 显式add（非必须）     
+        await session.commit()  # 提交事务 # 必定触发UPDATE
         session.refresh(user_to_upadte)
         return user_to_upadte
 
