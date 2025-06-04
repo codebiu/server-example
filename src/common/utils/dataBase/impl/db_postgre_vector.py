@@ -7,61 +7,31 @@ from utils.db.interface.db_base_interface import DBBaseInterface
 
 
 class DataBasePostgreVector(DBBaseInterface):
-    def __init__(self, engine, sessionFactory):
-        self.engine = engine
-        self.sessionFactory = sessionFactory
-
-    async def select_by_cosine(
+    async def cosine(
         self,
-        session,
-        model,  # 接收 DocumentSelect 这类模型
-        query_vector,
-        filter_column=None,
-        filter_value=None,
-        top_n=5,
-        vector_column="embedding",
-        similarity_alias="similarity",
+        session: AsyncSession,
+        model_in,
+        model_out,
+        search_vector,
+        pid="proj_1",
+        limit=3,
     ):
-        """
-        通用向量搜索，返回指定model类型的对象（需包含similarity字段）
-        """
-        # 获取原始表模型（如 Document）
-        base_model = model.__bases__[0] if hasattr(model, "__bases__") else model
-
-        # 验证模型是否包含similarity字段
-        if not any(field.name == "similarity" for field in model.__fields__.values()):
-            raise ValueError("返回模型必须包含 similarity 字段")
-
-        # 构建查询字段（排除向量）
-        select_fields = [
-            getattr(base_model, col.name)
-            for col in inspect(base_model).columns
-            if col.name != vector_column
-        ]
-
-        # 添加过滤条件
-        stmt = select(*select_fields)
-        if filter_column is not None:
-            stmt = stmt.where(filter_column == filter_value)
-
-        # 添加相似度计算
-        vec_str = ",".join(str(v) for v in query_vector)
-        stmt = (
-            stmt.add_columns(
-                text(f"{vector_column} <=> ARRAY[{vec_str}]::vector").label(
-                    similarity_alias
-                )
+        query = (
+            select(
+                model_in.id,
+                model_in.content,
+                (1.0 - model_in.embedding.cosine(search_vector)).label("similarity"),
             )
-            .order_by(similarity_alias)
-            .limit(top_n)
+            .where(model_in.pid == pid)
+            .order_by(model_in.embedding.cosine(search_vector))
+            .limit(limit)
         )
-
-        # 执行并映射结果
-        result = await session.execute(stmt)
-        return [
-            model(**row._asdict())  # 自动匹配字段名
-            for row in result
-        ]
+        results = await session.exec(query)
+        # 结果转换为DocumentSelect对象
+        document_selects = []
+        for row in results:
+            document_selects.append(model_out(**row._asdict()))
+        return document_selects
 
 
 if __name__ == "__main__":
