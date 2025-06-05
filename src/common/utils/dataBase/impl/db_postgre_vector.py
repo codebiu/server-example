@@ -3,7 +3,7 @@ from sqlmodel import text
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, inspect, select
-from utils.db.interface.db_base_interface import DBBaseInterface
+from common.utils.dataBase.interface.db_base_interface import DBBaseInterface
 
 
 class DataBasePostgreVector(DBBaseInterface):
