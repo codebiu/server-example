@@ -43,7 +43,7 @@ logger.info("ok...关系型数据库配置")
 
 # 不主动处理事务，由Service层完全控制
 @asynccontextmanager
-async def get_db_session() -> AsyncIterator[AsyncSession]:
+async def get_db_session():
     """
     完整托管会话：自动处理事务和连接生命周期
     """
@@ -52,62 +52,3 @@ async def get_db_session() -> AsyncIterator[AsyncSession]:
             yield session
 
 ####################################### 注入模式 ###################################
-
-
-T = TypeVar('T')
-def Dao(func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., Coroutine[Any, Any, T]]:
-    """
-    改进版自动事务装饰器（使用async with管理会话）：
-    1. 支持嵌套事务
-    2. 自动检测是否需要提交
-    3. 支持手动控制事务
-    4. 使用async with确保资源释放
-    """
-    @wraps(func)
-    async def wrapper(self, *args, **kwargs) -> T:
-        # 检查是否已有有效会话
-        existing_session: Optional[AsyncSession] = getattr(self, 'session', None)
-        
-        if existing_session and isinstance(existing_session, AsyncSession) and existing_session.is_active:
-            # 使用现有会话
-            return await func(self, *args, **kwargs)
-        else:
-            # 创建新会话并管理其生命周期
-            async with session_factory() as session:
-                setattr(self, 'session', session)
-                try:
-                    async with session.begin():
-                        result = await func(self, *args, **kwargs)
-                        return result
-                except Exception as e:
-                    logger.error(f"数据库操作失败: {e}", exc_info=True)
-                    if session.in_transaction():
-                        await session.rollback()
-                    raise
-                finally:
-                    delattr(self, 'session')  # 清理会话引用
-    
-    return wrapper
-
-def transactional():
-    """
-    Service层事务装饰器
-    """
-    def decorator(func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., Coroutine[Any, Any, T]]:
-        @wraps(func)
-        async def wrapper(self, *args, **kwargs) -> T:
-            # 检查是否已有session
-            if not hasattr(self, 'session') or not isinstance(self.session, AsyncSession):
-                async with session_factory() as session:
-                    self.session = session
-                    try:
-                        result = await func(self, *args, **kwargs)
-                        await session.commit()
-                        return result
-                    except Exception as e:
-                        await session.rollback()
-                        raise
-            else:
-                return await func(self, *args, **kwargs)
-        return wrapper
-    return decorator

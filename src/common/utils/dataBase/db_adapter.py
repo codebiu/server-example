@@ -16,7 +16,7 @@ class DBMode(Enum):
     POSTGRES = "postgres_postgres@pgvector_postgres@apacheage"
 
 class DBAdapter:
-    """统一数据库适配器（策略模式版）"""
+    """统一数据库适配器"""
     def __init__(self, mode: DBMode, connection_params: dict[str, any]|None = None):
         self._strategy:DBInterface = self._create_strategy(mode)
         self._params = connection_params or {}
@@ -33,17 +33,17 @@ class DBAdapter:
         """建立数据库连接"""
         await self._strategy.connect(self._params)
 
-    async def execute_sql_rel(self, query: str, *args) -> list[any]:
+    async def exec_base(self, query: str, *args) -> list[any]:
         """执行SQL查询"""
-        return await self._strategy.execute_sql_rel(query, *args)
+        return await self._strategy.exec_base(query, *args)
 
-    async def execute_sql_vector(self, query: str, vector: list[float], top_k: int = 5) -> list[any]:
+    async def exec_vector(self, query: str, vector: list[float], top_k: int = 5) -> list[any]:
         """向量相似度搜索"""
-        return await self._strategy.execute_sql_vector(query, vector, top_k)
+        return await self._strategy.exec_vector(query, vector, top_k)
 
-    async def execute_sql_graph(self, cypher: str, **params) -> any:
+    async def exec_graph(self, cypher: str, **params) -> any:
         """图数据库查询"""
-        return await self._strategy.execute_sql_graph(cypher, **params)
+        return await self._strategy.exec_graph(cypher, **params)
 
     async def close(self) -> None:
         """关闭连接"""
