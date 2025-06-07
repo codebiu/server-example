@@ -15,7 +15,7 @@ conda env list
 conda config --append channels conda-forge
 
 # 初始环境
-conda create -n server_py python=3.12
+conda create -n server_py python=3.13
 
 # 进入环境
 conda activate server_py

@@ -12,4 +12,5 @@ config.dev.yaml
 package-lock.json
 
 # 运行时静态文件
-run_create_source
+temp_source
+temp
