@@ -228,7 +228,7 @@ class GraphRAG:
 
 
 if __name__ == "__main__":
-    from common.utils.dataBase.DataBaseNeo4j import DataBaseNeo4j
+    from common.utils.db.DataBaseNeo4j import DataBaseNeo4j
 
     # from common.utils.rag.graphRAG.KuzuGraph import KuzuGraph
     import polars as pl

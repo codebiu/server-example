@@ -6,13 +6,6 @@
     "dev": "conda activate pc_py & python src/server_main.py",
     "debug": "conda activate pc_py & python src/server_main.py",
     "build": "conda activate server_py & pyinstaller --distpath=dist --workpath=build  server_main.spec",
-    "build_base": "conda activate test_all & pyinstaller --contents-directory . --icon=source/img/ion/favicon.ico --distpath=dist --workpath=build --add-data=source;source -D  src/server_main.py",
-    "build1": "conda activate test_all & pyinstaller --icon=source/img/ion/favicon.ico -D -w   src/server_main.py",
-    "build_nuitka": "conda activate test_all &nuitka --standalone --output-dir=a_dist_nuitka --output-filename=TestAppName  --windows-icon-from-ico=source/img/ion/favicon.ico src/server_main.py ",
-    "build_nuitka_w": "conda activate test_all &nuitka --windows-disable-consol  --standalone  --include-package=uvicorn --include-package=fastapi --output-dir=a_dist_nuitka --output-filename=TestAppName  --windows-icon-from-ico=source/img/ion/favicon.ico src/server_main.py ",
-    "update_install_lib": "conda activate test_all &  pipreqs --use-local --encoding=utf8 --force . & pip install -r requirements.txt",
-    "update_all_lib": "conda activate test_all & pip freeze > requirements.txt",
-    "update_use_lib": "conda activate server_py &  pipreqs --use-local --encoding=utf8 --force .",
-    "export_conda_env": "conda activate server_py & conda env export > environment.yaml"
+    "export_pyproject_to_requirements": "uv export --format=requirements.txt --no-hashes --no-annotate --no-header > requirements.txt"
   }
 }

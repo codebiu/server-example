@@ -5,7 +5,7 @@ import sys, pathlib
 [sys.path.append(str(pathlib.Path(__file__).resolve().parents[i])) for i in range(3)]
 import time
 
-# from common.utils.dataBase.DataBaseNeo4j import GraphTraversal
+# from common.utils.db.DataBaseNeo4j import GraphTraversal
 from common.utils.code.ast.ast_python import AstPython
 from common.utils.rag.graphRAG.prompt import AnalysisPrompt
 from common.utils.media.ai.OpenAIClient import OpenAIClient
@@ -292,7 +292,7 @@ if __name__ == "__main__":
         for i in range(4)
     ]
     # self
-    from common.utils.dataBase.DataBaseNeo4j import DataBaseNeo4j
+    from common.utils.db.DataBaseNeo4j import DataBaseNeo4j
     from config.index import conf
 
     # lib

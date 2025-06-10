@@ -3,7 +3,7 @@
 # from config.server import app
 # from ..service.dict import DictService
 # from module_main.do.dict import Dict, DictCreate, DictUpdate
-# from common.utils.dataBase.DBEX import DBExtention, DBExtentiontentionBase
+# from common.utils.db.DBEX import DBExtention, DBExtentiontentionBase
 
 # # lib
 # from fastapi.responses import JSONResponse

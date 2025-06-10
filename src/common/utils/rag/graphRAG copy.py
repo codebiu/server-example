@@ -13,7 +13,7 @@ import json
 
 
 if __name__ == "__main__":
-    from common.utils.dataBase.DataBaseNeo4j import DataBaseNeo4jAsync
+    from common.utils.db.DataBaseNeo4j import DataBaseNeo4jAsync
 
     # 文件遍历
     from common.utils.file.directory_tree import DirectoryTree

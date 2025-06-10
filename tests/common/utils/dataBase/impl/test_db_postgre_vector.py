@@ -1,10 +1,10 @@
 # 测试文件：D:\a0_wx\codebiu\server-example\src\common\utils\dataBase\impl\db_postgre_vector.py
 import pytest
 
-from common.utils.dataBase.do.db_config import PostgresConfig
-from common.utils.dataBase.do.db_vector_model import Document, DocumentSelect
-from common.utils.dataBase.impl.db_postgre_base import DBPostgreBase
-from common.utils.dataBase.impl.db_postgre_vector import DataBasePostgreVector
+from common.utils.db.do.db_config import PostgresConfig
+from common.utils.db.do.db_vector_model import Document, DocumentSelect
+from common.utils.db.impl.db_postgre_base import DBPostgreBase
+from common.utils.db.impl.db_postgre_vector import DataBasePostgreVector
 # 在此添加测试用例
 import numpy as np
 # 配置

@@ -3,9 +3,9 @@ from pathlib import Path
 import time
 import pytest
 import asyncio
-from common.utils.dataBase.do.db_config import SqliteConfig
-from common.utils.dataBase.interface.db_base_interface import DBBaseInterface
-from common.utils.dataBase.impl.db_sqlite_base import DBSqliteBase
+from common.utils.db.do.db_config import SqliteConfig
+from common.utils.db.interface.db_base_interface import DBBaseInterface
+from common.utils.db.impl.db_sqlite_base import DBSqliteBase
 from config.log import logger
 # 配置
 from config.index import conf

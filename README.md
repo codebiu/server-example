@@ -1,70 +1,22 @@
 ## server
+框架使用示例
 
-## 开发备注
-需求分析、概要设计、祥细设计->编码->单元测试、集成测试、系统测试、验收测试
-
-优先级：设计，编码，测试
-
-最后搞个集成测试
-
+## 启动
 ### conda 环境
-
 ```sh
-conda env list
-# 添加源
-conda config --append channels conda-forge
+conda create -n server_py python=3.13 # 创建环境
+conda activate server_py # 激活环境
+pip install requirements.txt # 安装依赖
+python src/server_main.py #  启动服务
 
-# 初始环境
-conda create -n server_py python=3.12
-
-# 进入环境
-conda activate server_py
-```
-
-### lib
-
-```sh
-# conda 包太老
-# server
-pip3 install uvicorn
-# web框架
-pip3 install fastapi
-# 数据库对象和程序对象序列化反序列化关联    SQLModel 基于 Pydantic(自动安装) 和 SQLAlchemy(自动安装)
-pip3 install sqlmodel
-# 上传文件等
-pip3 install python-multipart
-# 异步sqlite aiofiles
-pip3 install aiosqlite aiofiles
-# 配置文件pyyaml
-pip3 install pyyaml
-# 嵌入式图数据库kuzu
-pip3 install kuzu
-# 图数据库neo4j
-pip3 install neo4j
-# jwt
-pip install pyjwt
-# 密码加密
-pip install passlib[bcrypt]
-# 测试
-pip install pytest
-# tree-sitter 语法树
-pip install tree-sitter==0.21.3
- pip install tree-sitter-javascript tree-sitter-java tree-sitter-python
-# full server
-pip3 install uvicorn fastapi sqlmodel python-multipart aiosqlite aiofiles pyyaml neo4j kuzu pyjwt passlib[bcrypt]
-# 导出
-conda env export > environment.yaml
+# 导出环境
 conda list -e > requirements.txt
-# 导入 test_all
-conda env create -f environment.yml -n test_all
-# 把环境 rcnn 重命名成 tf
-conda create -n tf --clone rcnn
-conda remove -n rcnn --all 
-# 编码
-pip install chardet
-# lsp
-pip install pylyzer
+```
+### uv 环境
 
+```sh
+uv sync # 创建环境/激活环境/安装依赖
+uv run src/server_main.py #  启动服务
 ```
 
 ### 设置 launch.json debug
@@ -95,7 +47,8 @@ where.exe python # windows
         "--port",
         "1666"
       ],
-      "python": "D:/a_code_lib/conda_env/pc_py/python",
+      // "python": "/home/here/D/a_code/server-example/.venv/bin/python",
+      "python": ".venv/bin/python",
       "jinja": true,
       "justMyCode": true,
       "env": { "PYTHONPATH": "${workspaceRoot}/src" }

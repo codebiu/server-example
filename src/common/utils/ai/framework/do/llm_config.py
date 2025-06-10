@@ -33,11 +33,15 @@ class AWSConfig(ModelConfig):
     region_name: str = Field(..., description="AWS区域名称")
     aws_access_key_id: str = Field(..., description="AWS访问密钥ID")
     aws_secret_access_key: str = Field(..., description="AWS访问密钥")
+
+class LLMEX:
+    def get_config(type: str,config_dict)->ModelConfig:
+        if  type == "openai":
+            return OpenAIConfig(**config_dict)
+        elif  type == "ollama":
+            return OllamaConfig(**config_dict)
+        elif  type == "aws":
+            return AWSConfig(**config_dict)
+        else:
+            raise ValueError(f"get_config 未知模型类型:{type}")
     
-
-
-
-# # 上下文配置对象
-# class ContextConfig(BaseModel):
-#     max_length: int = 1024 # 上下文最大长度
-#     overlap: int = 64 # 上下文重叠长度
